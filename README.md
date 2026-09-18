@@ -11,6 +11,7 @@ Built solo for the **IEEE ClimateChain Global Hackathon 2026 — Sustainable Sup
 
 | | |
 |---|---|
+| Repository | https://github.com/MrPrinceAli/zkanopy |
 | Registry contract | [`0xd5569a4557E4CaE10464Ff868f6A3594014D852f`](https://sepolia.basescan.org/address/0xd5569a4557E4CaE10464Ff868f6A3594014D852f) (Base Sepolia, chain id 84532) |
 | First attestation | [`0xeb4824de…06df`](https://sepolia.basescan.org/tx/0xeb4824de2e95a8a601e667a64a431bbb769da5bf82f5287a37923cbf047706df) |
 | Live demo | _deploy pending — see [Deploy the frontend](#deploy-the-frontend)_ |
@@ -158,7 +159,7 @@ testnet wallet). Addresses are also exported from [`frontend/src/config.ts`](fro
 | Google Earth Engine | non-commercial account + a registered Cloud project |
 
 ```bash
-git clone --recurse-submodules <repo> zkanopy && cd zkanopy
+git clone --recurse-submodules https://github.com/MrPrinceAli/zkanopy.git && cd zkanopy
 cp .env.example .env            # PRIVATE_KEY (testnet wallet), RPC_URL, GEE_PROJECT
 npm install                     # circomlib, circomlibjs, snarkjs, viem, mocha …
 python3 -m venv .venv && .venv/bin/pip install -r oracle/requirements.txt

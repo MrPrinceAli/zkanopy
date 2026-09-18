@@ -87,7 +87,7 @@ poseidon-lite · Vercel
 
 ## Links
 
-- Repository: `TODO https://github.com/<owner>/zkanopy`
+- Repository: https://github.com/MrPrinceAli/zkanopy
 - Live demo: `TODO https://<project>.vercel.app`
 - Video (3–5 min): `TODO`
 - Registry contract: https://sepolia.basescan.org/address/0xd5569a4557E4CaE10464Ff868f6A3594014D852f
