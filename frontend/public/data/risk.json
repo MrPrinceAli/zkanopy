@@ -1,0 +1,94 @@
+{
+  "generatedAt": "2026-09-18T02:33:53+00:00",
+  "chainId": 84532,
+  "registry": "0xd5569a4557E4CaE10464Ff868f6A3594014D852f",
+  "fromBlock": 46963452,
+  "toBlock": 46965268,
+  "n_claims": 31,
+  "status": "ok",
+  "model": {
+    "type": "IsolationForest",
+    "n_estimators": 200,
+    "contamination": "auto",
+    "random_state": 42,
+    "features": [
+      "n_claims",
+      "max_claims_per_hour",
+      "near_ratio",
+      "peers_same_season"
+    ],
+    "near_seconds": 300
+  },
+  "exporters": [
+    {
+      "address": "0x0db52747fb322c54d45a405a12ee392f0cbd49f0",
+      "n_claims": 25,
+      "max_claims_per_hour": 25,
+      "near_ratio": 1.0,
+      "peers_same_season": 3,
+      "span_hours": 0.017,
+      "seasons": [
+        2026
+      ],
+      "first_claim": "2026-09-18T02:32:30+00:00",
+      "last_claim": "2026-09-18T02:33:32+00:00",
+      "anomaly_score": 0.5932,
+      "risk_score": 1.0,
+      "reasons": [
+        "25 claims vs. a median of 2.5",
+        "burst: 25 claims within one hour (median 2.5)",
+        "100% of claims within 5 min of the previous one"
+      ]
+    },
+    {
+      "address": "0x9584d49c674f685d6cd3463d9bebcff3d8b68923",
+      "n_claims": 1,
+      "max_claims_per_hour": 1,
+      "near_ratio": 0.0,
+      "peers_same_season": 3,
+      "span_hours": 0.0,
+      "seasons": [
+        2026
+      ],
+      "first_claim": "2026-09-18T02:11:10+00:00",
+      "last_claim": "2026-09-18T02:11:10+00:00",
+      "anomaly_score": 0.4975,
+      "risk_score": 0.637,
+      "reasons": []
+    },
+    {
+      "address": "0xfd1237aa2249e0cb3ccea2659a3a963b8a86f456",
+      "n_claims": 3,
+      "max_claims_per_hour": 3,
+      "near_ratio": 1.0,
+      "peers_same_season": 3,
+      "span_hours": 0.013,
+      "seasons": [
+        2026
+      ],
+      "first_claim": "2026-09-18T02:31:42+00:00",
+      "last_claim": "2026-09-18T02:32:28+00:00",
+      "anomaly_score": 0.3559,
+      "risk_score": 0.0997,
+      "reasons": [
+        "100% of claims within 5 min of the previous one"
+      ]
+    },
+    {
+      "address": "0x959f524d2e3f3d28830d05764b90fd0671fb3f25",
+      "n_claims": 2,
+      "max_claims_per_hour": 2,
+      "near_ratio": 1.0,
+      "peers_same_season": 3,
+      "span_hours": 0.007,
+      "seasons": [
+        2026
+      ],
+      "first_claim": "2026-09-18T02:31:16+00:00",
+      "last_claim": "2026-09-18T02:31:40+00:00",
+      "anomaly_score": 0.3296,
+      "risk_score": 0.0,
+      "reasons": []
+    }
+  ]
+}

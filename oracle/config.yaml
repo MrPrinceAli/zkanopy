@@ -1,0 +1,39 @@
+# ZKanopy oracle configuration (PRD 5.5). One AOI = one grid = one Merkle root.
+
+name: gayo-aceh-coffee
+description: >
+  Gayo highlands around Takengon, Central Aceh, Indonesia — smallholder arabica coffee
+  landscape with mixed forest, the kind of area EUDR due diligence targets.
+grid_version: 1
+
+aoi:
+  # Bottom-left corner of the grid, in degrees (WGS84).
+  lat0: 4.55
+  lon0: 96.75
+  # Cell size in degrees. 0.0009 deg = stepS 900 in the 1e6 fixed-point encoding (~100 m at the equator).
+  step_deg: 0.0009
+  # Grid dimensions: 200 x 200 cells = 0.18 x 0.18 deg (~20 x 20 km) = 40 000 leaves (depth 16 holds 65 536).
+  cols: 200
+  rows: 200
+
+years:
+  baseline: 2020 # EUDR cut-off year (31 Dec 2020)
+  current: 2025
+
+hansen:
+  asset: UMD/hansen/global_forest_change_2024_v1_12
+  # `lossyear` codes counted as post-cut-off deforestation: 21..25 = 2021..2025 (PRD 5.2).
+  # v1.12 tops out at 24; the range is kept open so a 2025 release is picked up automatically.
+  loss_years: [21, 25]
+
+sentinel:
+  collection: COPERNICUS/S2_SR_HARMONIZED
+  scale_m: 30 # export resolution for every raster (matches Hansen's native 30 m)
+  max_cloud_pct: 80 # drop scenes with CLOUDY_PIXEL_PERCENTAGE above this before masking
+
+merkle:
+  depth: 16
+
+# On-chain Grid.metadataURI. Leave empty to use "sha256:<hash of frontend/public/data/metadata.json>";
+# set to a real URL (e.g. the deployed frontend's /data/metadata.json) to publish a new grid version.
+metadata_uri: ""

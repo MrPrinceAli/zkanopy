@@ -1,0 +1,14 @@
+# Oracle pipeline dependencies (PRD 5.1 / 5.5). Install into .venv at repo root:
+#   python3 -m venv .venv && .venv/bin/pip install -r oracle/requirements.txt
+# Versions pinned to what was verified working on Python 3.14.6 (macOS arm64).
+earthengine-api==1.7.43
+rasterio==1.5.1
+numpy==2.5.3
+pandas==3.0.5
+scikit-learn==1.9.1
+geopandas==1.1.4
+pyyaml==6.0.3
+requests==2.34.2
+python-dotenv>=1.0
+# tests
+pytest>=8

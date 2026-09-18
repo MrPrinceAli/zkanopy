@@ -1,0 +1,26 @@
+{
+  "name": "zkanopy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zero-knowledge deforestation-free proofs for smallholder farmers (IEEE ClimateChain 2026)",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:circuit": "bash circuits/build.sh",
+    "test": "mocha --exit --timeout 180000 circuits/test/*.test.js oracle/tests/*.test.js",
+    "oracle:merkle": "node oracle/04_build_merkle.js",
+    "oracle:publish": "node oracle/05_publish_root.js"
+  },
+  "devDependencies": {
+    "circom_tester": "^0.0.24",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "mocha": "^12.0.2",
+    "snarkjs": "^0.7.6"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.0",
+    "viem": "^2.56.7"
+  }
+}

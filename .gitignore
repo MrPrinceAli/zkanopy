@@ -1,0 +1,36 @@
+# rahasia
+.env
+.env.*
+!.env.example
+
+# dependency
+node_modules/
+frontend/node_modules/
+
+# artefak besar / hasil generate
+circuits/build/*.zkey
+circuits/*.ptau
+# circuit build intermediates (wasm + verification_key.json are committed)
+circuits/build/*.r1cs
+circuits/build/*.sym
+circuits/build/*.wtns
+circuits/build/*_js/
+circuits/build/proof.json
+circuits/build/public.json
+oracle/data/
+oracle/out/*
+!oracle/out/ai_report.md
+!oracle/out/root.json
+frontend/dist/
+# proving artifacts are synced from circuits/build (or ZKEY_URL) by frontend/scripts/sync-zk.mjs; never commit the zkey
+frontend/public/zk/
+
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/**/dry-run/
+
+# python
+__pycache__/
+*.pyc
+.venv/

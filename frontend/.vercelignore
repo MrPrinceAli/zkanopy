@@ -1,0 +1,5 @@
+# Only .vercelignore applies when present, so public/zk/ (gitignored) is still uploaded on `vercel deploy`.
+node_modules
+dist
+.env
+.env.local
