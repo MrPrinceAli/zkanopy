@@ -3,12 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0e0c" />
+    <meta
+      name="description"
+      content="ZKanopy — a smallholder farmer proves a plot has not been deforested since 31 Dec 2020 with a zero-knowledge proof, without revealing where the plot is."
+    />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230f766e'/%3E%3Cpath d='M9 22 16 9l7 13H9z' fill='%23fff'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0e0c'/%3E%3Cpath d='M9 22 16 9l7 13H9z' fill='%23a6ef5e'/%3E%3C/svg%3E"
     />
-    <title>ZKanopy — deforestation-free proofs without revealing your plot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>ZKanopy — prove the forest is still standing</title>
+    <script>
+      // Apply the stored theme and language before the first paint (no flash of the wrong theme).
+      (function () {
+        try {
+          var t = localStorage.getItem("zk-theme");
+          if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+          document.documentElement.dataset.theme = t;
+          document.documentElement.style.colorScheme = t;
+          var l = localStorage.getItem("zk-lang");
+          if (l !== "en" && l !== "id") l = (navigator.language || "").toLowerCase().indexOf("id") === 0 ? "id" : "en";
+          document.documentElement.lang = l;
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

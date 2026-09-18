@@ -82,8 +82,8 @@ after an audit. See the roadmap in the README.
 ## Built with
 
 circom · snarkjs · circomlib · Solidity · Foundry · Base (Sepolia) · viem · wagmi · React · Vite · TypeScript ·
-Leaflet · Google Earth Engine · Hansen Global Forest Change · Sentinel-2 · Python · scikit-learn · rasterio · numpy ·
-poseidon-lite · Vercel
+Leaflet · Esri World Imagery · GSAP · Google Earth Engine · Hansen Global Forest Change · Sentinel-2 · Python ·
+scikit-learn · rasterio · numpy · poseidon-lite · Vercel
 
 ## Links
 

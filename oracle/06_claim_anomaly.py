@@ -40,6 +40,7 @@ CONFIG_TS = ROOT / "frontend" / "src" / "config.ts"
 # keccak256("Attested(uint256,address,uint256,uint256,uint32,bytes32)") - the event is frozen since Phase 2.
 ATTESTED_TOPIC = "0x038a17b3a72e5d0ba962fd1dc5d3b35b6a58d82cb9fee701553485dd577512e7"
 FEATURES = ["n_claims", "max_claims_per_hour", "near_ratio", "peers_same_season"]
+MAX_RANGE = 9_000  # the public Base RPC caps eth_getLogs at 10 000 blocks
 MIN_SPLIT_RANGE = 2_000
 MODEL_PARAMS = {"n_estimators": 200, "contamination": "auto"}
 
@@ -74,15 +75,25 @@ def read_frontend_config(path: Path = CONFIG_TS) -> dict:
     }
 
 
-def fetch_logs(get_logs, from_block: int, to_block: int, min_split: int = MIN_SPLIT_RANGE) -> list:
-    """Calls get_logs(from, to) over the range, halving it whenever the node rejects the request."""
+def fetch_logs(get_logs, from_block: int, to_block: int, min_split: int = MIN_SPLIT_RANGE, max_range: int = MAX_RANGE) -> list:
+    """Calls get_logs over [from, to] in chunks of at most max_range blocks, halving a chunk the node still rejects."""
+    out: list = []
+    start = from_block
+    while start <= to_block:
+        end = min(start + max_range - 1, to_block)
+        out.extend(_fetch_adaptive(get_logs, start, end, min_split))
+        start = end + 1
+    return out
+
+
+def _fetch_adaptive(get_logs, from_block: int, to_block: int, min_split: int) -> list:
     try:
         return list(get_logs(from_block, to_block))
     except RpcError:
         if to_block - from_block < min_split:
             raise
         mid = from_block + (to_block - from_block) // 2
-        return fetch_logs(get_logs, from_block, mid, min_split) + fetch_logs(get_logs, mid + 1, to_block, min_split)
+        return _fetch_adaptive(get_logs, from_block, mid, min_split) + _fetch_adaptive(get_logs, mid + 1, to_block, min_split)
 
 
 def decode_attested(log: dict) -> dict:

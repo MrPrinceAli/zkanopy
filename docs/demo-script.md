@@ -22,7 +22,11 @@ cd frontend && npm run dev            # http://localhost:5173 (or use the Vercel
 
 ## 0:00–0:30 · The problem
 
-Slide or spoken over the map:
+Open the landing page (`/`) and let the grid scan in — every pixel behind the headline is a real cell; move the mouse
+to show the row/col/status readout and click a cell for the pulse. Flip the theme toggle once (circular reveal) and,
+if the audience is Indonesian, the `EN / ID` toggle. Scroll into chapter 1, *The forest, 2020 → 2025*: the page pins,
+the year advances as you scroll, cleared cells turn amber and the counter climbs. Keep scrolling into *The problem*
+while speaking:
 
 > "EUDR: every plot behind a shipment of cocoa, coffee, palm oil or rubber must be geolocated and checked against a
 > 31 December 2020 deforestation cut-off. Today smallholders hand raw coordinates to a central platform — a
@@ -31,7 +35,11 @@ Slide or spoken over the map:
 
 ## 0:30–1:00 · Architecture
 
-Show `docs/architecture.png`. Point at the four boxes:
+Keep scrolling: *How it works* pins a phone mock-up whose screen follows the four steps as the text passes (the grid →
+your cell → proving → done); *Your secret* is a flip card — hover it to switch between what the chain sees and the
+network tab while a proof is made ("no request carries a latitude or a longitude"); *The two models* scrolls sideways
+through the RandomForest radar and the IsolationForest ranking. Alternatively show `docs/architecture.png`. Point at
+the four parts:
 
 > "An oracle turns Hansen and Sentinel-2 data into a grid of clean/loss cells — with a RandomForest quality check — and
 > publishes only a Merkle root on Base. The farmer's browser builds a zero-knowledge proof that their cell is clean. The
@@ -40,8 +48,9 @@ Show `docs/architecture.png`. Point at the four boxes:
 
 ## 1:00–2:00 · Farmer: clean plot → proof → transaction
 
-1. `/farmer`: note the green **"matches on-chain root"** pill — the browser verified the grid against the chain.
-2. Tick **Show cells flagged as loss** — red cells appear. Zoom to Takengon (zoom 16).
+1. `/farmer` (or **Open the farmer app** in the last chapter): note the green **"matches on-chain root"** pill — the
+   browser verified the grid against the chain.
+2. Tick **Show cells flagged as loss** — amber cells appear on the satellite imagery. Zoom to Takengon (zoom 16).
 3. Click cell **(100,101)** → "row 100, col 101 · clean". Say: *"the coordinates stay on this device"*.
 4. Commodity: Coffee. **Generate proof** → "Proof generated in ~500 ms". Open the public-signals panel:
    *"seven numbers: nullifier, root, season, exporter and grid parameters — no latitude, no longitude."*
@@ -52,7 +61,7 @@ Show `docs/architecture.png`. Point at the four boxes:
 
 ## 2:00–2:30 · The two negative paths
 
-1. Click the red cell **(105,90)** → status **loss**, message *"This cell was flagged as deforested after 2020 (Hansen GFC +
+1. Click the amber cell **(105,90)** → status **loss**, message *"This cell was flagged as deforested after 2020 (Hansen GFC +
    AI QC). A proof cannot be generated for it."* — the button is disabled; there is no witness for a loss leaf.
 2. Click **(100,100)** (attested earlier) → Generate proof works (it is a clean cell) → **Submit** →
    `NullifierAlreadyUsed — This cell has already been attested for this season`. Say: *"the contract rejected it during

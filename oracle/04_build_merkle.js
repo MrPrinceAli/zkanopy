@@ -76,7 +76,13 @@ function checkpointFrom(tree, level = CHECKPOINT_LEVEL) {
   };
 }
 
-/** --checkpoint-only: derive checkpoint.json from the already published tree.json without touching it. */
+/** labels.json: the 40 KB label string + grid parameters, for pages that only need to draw the grid. */
+function labelsFrom(treeJson) {
+  const { name, version, rows, cols, lat0S, lon0S, stepS, labels } = treeJson;
+  return { schema: "zkanopy-labels/v1", name, version, rows, cols, lat0S, lon0S, stepS, labels };
+}
+
+/** --checkpoint-only: derive checkpoint.json (and labels.json) from the published tree.json without touching it. */
 async function checkpointOnly() {
   const treeJson = JSON.parse(fs.readFileSync(path.join(FRONTEND_DATA, "tree.json"), "utf8"));
   const hash = makeHasher(await getPoseidon());
@@ -84,7 +90,8 @@ async function checkpointOnly() {
   if (tree.root.toString() !== treeJson.root) throw new Error("rebuilt root does not match tree.json");
   const cp = checkpointFrom(tree);
   fs.writeFileSync(path.join(FRONTEND_DATA, "checkpoint.json"), JSON.stringify(cp) + "\n");
-  console.log(`wrote frontend/public/data/checkpoint.json (level ${cp.level}, ${cp.nodes.length} nodes) for root ${cp.root}`);
+  fs.writeFileSync(path.join(FRONTEND_DATA, "labels.json"), JSON.stringify(labelsFrom(treeJson)) + "\n");
+  console.log(`wrote frontend/public/data/checkpoint.json (level ${cp.level}, ${cp.nodes.length} nodes) and labels.json for root ${cp.root}`);
 }
 
 async function main() {
@@ -120,6 +127,7 @@ async function main() {
   fs.writeFileSync(path.join(FRONTEND_DATA, "tree.json"), treeBuf);
   const treeSha = sha256(treeBuf);
   fs.writeFileSync(path.join(FRONTEND_DATA, "checkpoint.json"), JSON.stringify(checkpointFrom(built.tree)) + "\n");
+  fs.writeFileSync(path.join(FRONTEND_DATA, "labels.json"), JSON.stringify(labelsFrom(treeJson)) + "\n");
 
   const metadata = {
     schema: "zkanopy-grid-metadata/v1",

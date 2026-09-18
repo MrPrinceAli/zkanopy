@@ -1,8 +1,9 @@
-// Attested-event queries that survive public RPC block-range limits: one getLogs call over the whole range,
-// recursively halved whenever the node rejects the request.
+// Attested-event queries that survive public RPC limits: ranges are cut into chunks of at most MAX_RANGE
+// blocks up front (Base's public RPC caps eth_getLogs at 10 000), and a chunk the node still rejects is
+// halved recursively. Callers narrow the range with windowAround() whenever they know a timestamp.
 import type { Address, Hex } from "viem";
 import { REGISTRY_ABI, type ReadClient } from "./contract";
-import { REGISTRY_ADDRESS, REGISTRY_DEPLOY_BLOCK } from "../config";
+import { BLOCK_ANCHOR, BLOCK_TIME_S, REGISTRY_ADDRESS, REGISTRY_DEPLOY_BLOCK } from "../config";
 
 export interface AttestedLog {
   id: bigint;
@@ -17,6 +18,8 @@ export interface AttestedLog {
 
 const ATTESTED_EVENT = REGISTRY_ABI.find((e) => e.type === "event" && e.name === "Attested")!;
 
+/** Largest range requested in one call (below the public RPC's 10 000-block cap). */
+export const MAX_RANGE = 9_000n;
 /** Smallest range we still split; below this a failure is a real error. */
 export const MIN_SPLIT_RANGE = 2_000n;
 
@@ -28,6 +31,16 @@ export interface LogQuery {
 }
 
 type GetLogs = (from: bigint, to: bigint) => Promise<AttestedLog[]>;
+
+/** Splits [from, to] into consecutive ranges of at most `size` blocks. */
+export function chunkRanges(from: bigint, to: bigint, size = MAX_RANGE): Array<[bigint, bigint]> {
+  const out: Array<[bigint, bigint]> = [];
+  for (let a = from; a <= to; a += size) {
+    const b = a + size - 1n;
+    out.push([a, b < to ? b : to]);
+  }
+  return out;
+}
 
 /** Range splitter, exported for tests: calls `fetch` over [from, to], halving on failure. */
 export async function fetchRangeAdaptive(fetch: GetLogs, from: bigint, to: bigint): Promise<AttestedLog[]> {
@@ -42,9 +55,25 @@ export async function fetchRangeAdaptive(fetch: GetLogs, from: bigint, to: bigin
   }
 }
 
+/** Block number an attestation with this unix timestamp was most likely mined in. */
+export function estimateBlock(timestamp: number): bigint {
+  return BigInt(BLOCK_ANCHOR.block) + BigInt(Math.floor((timestamp - BLOCK_ANCHOR.timestamp) / BLOCK_TIME_S));
+}
+
+/** A block window that surely contains attestations recorded between the two timestamps. */
+export function windowAround(tsMin: number, tsMax: number, margin = 2_500n): { fromBlock: bigint; toBlock: bigint } {
+  const deploy = BigInt(REGISTRY_DEPLOY_BLOCK);
+  let from = estimateBlock(tsMin) - margin;
+  if (from < deploy) from = deploy;
+  const to = estimateBlock(tsMax) + margin;
+  return { fromBlock: from, toBlock: to < from ? from : to };
+}
+
 export async function getAttestedLogs(client: ReadClient, q: LogQuery = {}): Promise<AttestedLog[]> {
+  const head = await client.getBlockNumber();
   const from = q.fromBlock ?? BigInt(REGISTRY_DEPLOY_BLOCK);
-  const to = q.toBlock ?? (await client.getBlockNumber());
+  const to = q.toBlock !== undefined && q.toBlock < head ? q.toBlock : head;
+  if (to < from) return [];
   const args: { exporter?: Address; id?: bigint } = {};
   if (q.exporter) args.exporter = q.exporter;
   if (q.id !== undefined) args.id = q.id;
@@ -62,6 +91,7 @@ export async function getAttestedLogs(client: ReadClient, q: LogQuery = {}): Pro
       blockNumber: l.blockNumber,
     }));
   };
-  const logs = await fetchRangeAdaptive(fetch, from, to);
-  return logs.sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
+  const out: AttestedLog[] = [];
+  for (const [a, b] of chunkRanges(from, to)) out.push(...(await fetchRangeAdaptive(fetch, a, b)));
+  return out.sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
 }

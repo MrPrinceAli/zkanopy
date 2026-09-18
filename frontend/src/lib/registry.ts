@@ -2,7 +2,7 @@
 import type { Address, Hex } from "viem";
 import { COMMODITIES, REGISTRY_ABI, commodityHash, type Commodity, type ReadClient } from "./contract";
 import { REGISTRY_ADDRESS } from "../config";
-import { getAttestedLogs } from "./logs";
+import { getAttestedLogs, windowAround } from "./logs";
 
 export interface AttestationRecord {
   id: bigint;
@@ -58,10 +58,10 @@ export async function fetchAttestation(client: ReadClient, id: bigint): Promise<
   return { id: a.id, exporter: a.exporter, gridId: a.gridId, nullifier: a.nullifier, season: a.season, commodityHash: a.commodityHash, timestamp: Number(a.timestamp) };
 }
 
-/** Best-effort transaction hash for one attestation (needs event logs; undefined when the RPC refuses). */
-export async function fetchTxHash(client: ReadClient, id: bigint): Promise<Hex | undefined> {
+/** Best-effort transaction hash for one attestation: one narrow log query around its timestamp. */
+export async function fetchTxHash(client: ReadClient, id: bigint, timestamp: number): Promise<Hex | undefined> {
   try {
-    const logs = await getAttestedLogs(client, { id });
+    const logs = await getAttestedLogs(client, { id, ...windowAround(timestamp, timestamp) });
     return logs[0]?.txHash;
   } catch {
     return undefined;
@@ -80,7 +80,8 @@ export async function fetchAttestationsOf(client: ReadClient, exporter: Address)
 
   let txByIdMap = new Map<bigint, Hex>();
   try {
-    const logs = await getAttestedLogs(client, { exporter });
+    const ts = structs.map((a) => Number(a.timestamp));
+    const logs = await getAttestedLogs(client, { exporter, ...windowAround(Math.min(...ts), Math.max(...ts)) });
     txByIdMap = new Map(logs.map((l) => [l.id, l.txHash]));
   } catch {
     /* table still works without tx links */

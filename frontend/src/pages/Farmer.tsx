@@ -12,11 +12,14 @@ import {
   REGISTRY_ABI,
   commodityHash,
   decodeContractError,
+  isKnownError,
   shortHex,
   txUrl,
   type DecodedError,
 } from "../lib/contract";
 import { REGISTRY_ADDRESS } from "../config";
+import { useI18n, type Key } from "../i18n";
+import { Cpu, FileSignature, Lock, MapPin, Send } from "lucide-react";
 
 type DataState =
   | { status: "loading" }
@@ -30,10 +33,8 @@ type SubmitState =
   | { status: "success"; hash: `0x${string}`; id: bigint | null }
   | { status: "error"; error: DecodedError; hash?: `0x${string}` };
 
-const LOSS_MESSAGE =
-  "This cell was flagged as deforested after 2020 (Hansen GFC + AI QC). A proof cannot be generated for it.";
-
 export default function Farmer() {
+  const { t } = useI18n();
   const { address, chainId } = useAccount();
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
@@ -50,6 +51,9 @@ export default function Farmer() {
   const [proof, setProof] = useState<ProofResult | null>(null);
   const [proveError, setProveError] = useState<string | null>(null);
   const [submit, setSubmit] = useState<SubmitState>({ status: "idle" });
+
+  const lossMessage = t("farmer.lossMsg");
+  const errorText = (d: DecodedError) => (isKnownError(d.name) ? t(`errors.${d.name}` as Key) : d.message);
 
   // Load tree.json / checkpoint.json / grid.json once, then verify the checkpoint against the on-chain root.
   useEffect(() => {
@@ -194,57 +198,63 @@ export default function Farmer() {
   const submitBusy = submit.status === "simulating" || submit.status === "pending";
 
   return (
-    <div className="page">
-      <section className="card">
-        <h1>Prove your plot is deforestation-free</h1>
-        <p className="muted">
-          Tap your plot on the map. Your browser looks up the cell, builds a zero-knowledge proof that the cell is
-          clean in the published satellite grid, and only the proof (never the coordinates) is sent on-chain.
-        </p>
+    <div className="app-page">
+      <header className="page-head">
+        <p className="eyebrow">{t("farmer.eyebrow")}</p>
+        <h1>
+          {t("farmer.h")} <em>{t("farmer.hEm")}</em>
+        </h1>
+        <p className="lede">{t("farmer.lede")}</p>
         <DataStatus state={data} />
-      </section>
+      </header>
 
       {data.status === "ready" && (
         <>
-          <section className="card map-card">
+          <section className="panel tight">
             <AoiMap tree={data.data.tree} point={point} showLoss={showLoss} onPick={(lat, lon) => setPoint({ lat, lon })} />
             <label className="check">
               <input type="checkbox" checked={showLoss} onChange={(e) => setShowLoss(e.target.checked)} />
-              Show cells flagged as loss (demo overlay)
+              {t("farmer.overlay")}
             </label>
           </section>
 
-          <section className="card">
-            <h2>1 · Selected plot</h2>
-            {!point && <p className="muted">No point selected yet — click inside the green rectangle.</p>}
+          <section className="panel">
+            <div className="panel-head">
+              <span className="panel-num">01</span>
+              <span className="panel-title"><MapPin size={16} />{t("farmer.s1")}</span>
+            </div>
+            {!point && <p className="muted">{t("farmer.noPoint")}</p>}
             {point && cell && (
               <div className="grid2">
                 <div>
-                  <div className="label">Coordinates (stay on this device)</div>
+                  <div className="label">{t("farmer.coords")}</div>
                   <div className="mono">
                     {point.lat.toFixed(6)}, {point.lon.toFixed(6)}
                   </div>
                 </div>
                 <div>
-                  <div className="label">Cell</div>
-                  <div className="mono">{cell.inside ? `row ${cell.row}, col ${cell.col}` : "outside the grid"}</div>
+                  <div className="label">{t("farmer.cell")}</div>
+                  <div className="mono">{cell.inside ? t("farmer.cellV", { r: cell.row, c: cell.col }) : t("farmer.outside")}</div>
                 </div>
                 <div>
-                  <div className="label">Status</div>
-                  {!cell.inside && <span className="pill">outside</span>}
-                  {cell.inside && cellClean && <span className="pill ok">clean</span>}
-                  {cell.inside && !cellClean && <span className="pill bad">loss</span>}
+                  <div className="label">{t("farmer.statusLabel")}</div>
+                  {!cell.inside && <span className="pill">{t("farmer.pill.outside")}</span>}
+                  {cell.inside && cellClean && <span className="pill ok">{t("farmer.pill.clean")}</span>}
+                  {cell.inside && !cellClean && <span className="pill bad">{t("farmer.pill.loss")}</span>}
                 </div>
               </div>
             )}
-            {cell?.inside && cellClean === false && <p className="alert bad">{LOSS_MESSAGE}</p>}
+            {cell?.inside && cellClean === false && <p className="alert bad">{lossMessage}</p>}
           </section>
 
-          <section className="card">
-            <h2>2 · Attestation details</h2>
+          <section className="panel">
+            <div className="panel-head">
+              <span className="panel-num">02</span>
+              <span className="panel-title"><FileSignature size={16} />{t("farmer.s2")}</span>
+            </div>
             <div className="form">
               <label>
-                Exporter address (the wallet that will submit the attestation)
+                {t("farmer.exporter")}
                 <input
                   className="mono"
                   value={exporter}
@@ -252,19 +262,19 @@ export default function Farmer() {
                   placeholder="0x…"
                   spellCheck={false}
                 />
-                {!exporterValid && exporter && <span className="hint bad">Not a valid address</span>}
+                {!exporterValid && exporter && <span className="hint bad">{t("farmer.invalidAddr")}</span>}
               </label>
               <div className="row">
                 <label>
-                  Season
+                  {t("farmer.season")}
                   <input type="number" value={season} min={2021} max={2100} onChange={(e) => setSeason(Number(e.target.value))} />
                 </label>
                 <label>
-                  Commodity
+                  {t("farmer.commodity")}
                   <select value={commodityKey} onChange={(e) => setCommodityKey(e.target.value)}>
                     {COMMODITIES.map((c) => (
                       <option key={c.key} value={c.key}>
-                        {c.description} (HS {c.hsCode})
+                        {t(`commodity.${c.key}` as Key)} (HS {c.hsCode})
                       </option>
                     ))}
                   </select>
@@ -273,28 +283,32 @@ export default function Farmer() {
             </div>
           </section>
 
-          <section className="card">
-            <h2>3 · Generate proof</h2>
+          <section className="panel">
+            <div className="panel-head">
+              <span className="panel-num">03</span>
+              <span className="panel-title"><Cpu size={16} />{t("farmer.s3")}</span>
+            </div>
             <button className="btn primary" disabled={!canGenerate} onClick={onGenerate}>
-              {proving ? "Proving in your browser…" : "Generate proof"}
+              {proving ? t("farmer.proving") : t("farmer.generate")}
             </button>
-            {cell?.inside && cellClean === false && <p className="hint bad">Disabled: {LOSS_MESSAGE}</p>}
-            {proveError && <p className="alert bad">Proof failed: {proveError}</p>}
+            {cell?.inside && cellClean === false && <p className="hint bad">{t("farmer.disabled", { msg: lossMessage })}</p>}
+            {proveError && <p className="alert bad">{t("farmer.proofFailed", { msg: proveError })}</p>}
             {proof && proofFile && (
               <div className="proof">
                 <p className="alert ok">
-                  Proof generated in <strong>{proof.ms} ms</strong>. Nullifier <span className="mono">{shortHex(proof.nullifier, 8)}</span>
+                  {t("farmer.proofDone")} <strong>{proof.ms} ms</strong>. {t("farmer.nullifier")}{" "}
+                  <span className="mono">{shortHex(proof.nullifier, 8)}</span>
                 </p>
-                <div className="row">
+                <div className="row" style={{ marginTop: 12 }}>
                   <a className="btn" href={proofFile.url} download={`zkanopy-proof-${proof.nullifier.slice(2, 10)}.json`}>
-                    Download proof.json
+                    {t("farmer.download")}
                   </a>
                   <button className="btn" onClick={() => navigator.clipboard.writeText(proofFile.contents)}>
-                    Copy proof JSON
+                    {t("farmer.copy")}
                   </button>
                 </div>
                 <details>
-                  <summary>Public signals (what the chain will see)</summary>
+                  <summary>{t("farmer.signals")}</summary>
                   <pre className="mono small">
                     {["nullifier", "root", "season", "exporter", "lat0S", "lon0S", "stepS"]
                       .map((k, i) => `${k.padEnd(9)} ${proof.publicSignals[i]}`)
@@ -305,33 +319,33 @@ export default function Farmer() {
             )}
           </section>
 
-          <section className="card">
-            <h2>4 · Submit attestation</h2>
-            {!address && <p className="muted">Connect a wallet (top right) to submit. For the demo the same wallet can act as the exporter.</p>}
-            {address && chainId !== 84532 && <p className="alert warn">Switch the wallet to Base Sepolia.</p>}
+          <section className="panel">
+            <div className="panel-head">
+              <span className="panel-num">04</span>
+              <span className="panel-title"><Send size={16} />{t("farmer.s4")}</span>
+            </div>
+            {!address && <p className="muted">{t("farmer.connect")}</p>}
+            {address && chainId !== 84532 && <p className="alert warn">{t("farmer.switch")}</p>}
             {address && exporterValid && address.toLowerCase() !== exporter.toLowerCase() && (
-              <p className="alert warn">
-                The proof is bound to {shortHex(exporter)} but the connected wallet is {shortHex(address)} — the contract will
-                reject it with <span className="mono">ExporterMismatch</span>. Download the proof and let the exporter submit it, or use the same address.
-              </p>
+              <p className="alert warn">{t("farmer.mismatch", { exporter: shortHex(exporter), wallet: shortHex(address) })}</p>
             )}
-            <button className="btn primary" disabled={!proof || !walletReady || submitBusy} onClick={onSubmit}>
-              {submit.status === "simulating" ? "Checking with the contract…" : submit.status === "pending" ? "Waiting for confirmation…" : "Submit attestation"}
+            <button className="btn primary" disabled={!proof || !walletReady || submitBusy} onClick={onSubmit} style={{ marginTop: address ? 12 : 0 }}>
+              {submit.status === "simulating" ? t("farmer.checking") : submit.status === "pending" ? t("farmer.waiting") : t("farmer.submit")}
             </button>
             {submit.status === "pending" && (
               <p className="alert">
-                Transaction sent: <a href={txUrl(submit.hash)} target="_blank" rel="noreferrer" className="mono">{shortHex(submit.hash, 8)}</a>
+                {t("farmer.sent")} <a href={txUrl(submit.hash)} target="_blank" rel="noreferrer" className="mono">{shortHex(submit.hash, 8)}</a>
               </p>
             )}
             {submit.status === "success" && (
               <p className="alert ok">
-                Attestation {submit.id !== null ? `#${submit.id.toString()}` : ""} recorded ·{" "}
+                {t("farmer.recorded", { id: submit.id !== null ? `#${submit.id.toString()}` : "" })}{" "}
                 <a href={txUrl(submit.hash)} target="_blank" rel="noreferrer" className="mono">{shortHex(submit.hash, 8)}</a>
               </p>
             )}
             {submit.status === "error" && (
               <p className="alert bad">
-                <strong className="mono">{submit.error.name}</strong> — {submit.error.message}
+                <strong className="mono">{submit.error.name}</strong> — {errorText(submit.error)}
                 {submit.hash && (
                   <>
                     {" "}
@@ -344,29 +358,30 @@ export default function Farmer() {
         </>
       )}
 
-      <section className="card privacy">
-        <strong>Privacy:</strong> your coordinates are never sent to a server or to the chain. This page downloads the
-        public grid once and does every lookup and the proof locally; the transaction carries only the nullifier, the grid
-        root and parameters, the season and the exporter address.
+      <section className="panel privacy">
+        <Lock size={14} style={{ verticalAlign: -2, marginRight: 6 }} /><strong>{t("farmer.privacyLabel")}</strong> {t("farmer.privacy")}
       </section>
     </div>
   );
 }
 
 function DataStatus({ state }: { state: DataState }) {
-  if (state.status === "loading") return <p className="hint">Loading the published grid (tree.json, ~3 MB)…</p>;
-  if (state.status === "error") return <p className="alert bad">Could not load grid data: {state.message}</p>;
+  const { t } = useI18n();
+  if (state.status === "loading") return <p className="hint">{t("farmer.loading")}</p>;
+  if (state.status === "error") return <p className="alert bad">{t("farmer.loadError", { msg: state.message })}</p>;
   const { data, verified, onchainRoot } = state;
   return (
-    <p className="hint">
-      Grid <strong>{data.tree.name}</strong> v{data.tree.version} · {data.tree.rows}×{data.tree.cols} cells · grid id {data.record.gridId} ·{" "}
-      root <span className="mono">{shortHex(data.record.rootHex)}</span>{" "}
+    <p className="hint row" style={{ marginTop: 14 }}>
+      <span>
+        {t("farmer.status", { name: data.tree.name, v: data.tree.version, rows: data.tree.rows, cols: data.tree.cols, id: data.record.gridId })}{" "}
+        <span className="mono">{shortHex(data.record.rootHex)}</span>
+      </span>
       {verified ? (
-        <span className="pill ok">matches on-chain root</span>
+        <span className="pill ok">{t("farmer.verified")}</span>
       ) : onchainRoot === null ? (
-        <span className="pill">on-chain check unavailable</span>
+        <span className="pill">{t("farmer.unverified")}</span>
       ) : (
-        <span className="pill bad">differs from on-chain root</span>
+        <span className="pill bad">{t("farmer.differs")}</span>
       )}
     </p>
   );

@@ -119,13 +119,31 @@ wallet that fired 25 attestations in 65 s scores **1.00**; ordinary exporters sc
 
 ## Screenshots
 
+![Landing page: every pixel behind the headline is a real 100 m cell of the published grid](docs/screenshots/landing-hero.jpg)
+
+| Chapter 1 — five seasons, scrubbed by scrolling | Light theme (toggle in the header) |
+|---|---|
+| ![](docs/screenshots/landing-story.jpg) | ![](docs/screenshots/landing-light.jpg) |
+
+| Chapter 3 — the phone follows the step you are reading | Chapter 4 — what leaves the phone (flip card) |
+|---|---|
+| ![](docs/screenshots/landing-how.jpg) | ![](docs/screenshots/landing-privacy.jpg) |
+
+| Chapter 5 — the two models, a sideways strip | Chapter 7 — your turn |
+|---|---|
+| ![](docs/screenshots/landing-ai.jpg) | ![](docs/screenshots/landing-start.jpg) |
+
 | Farmer: proof generated in the browser | Farmer: loss cell blocked |
 |---|---|
-| ![](docs/screenshots/farmer-proof.png) | ![](docs/screenshots/farmer-loss.png) |
+| ![](docs/screenshots/farmer-proof.jpg) | ![](docs/screenshots/farmer-loss.jpg) |
 
 | Exporter: DDS export | Regulator: anomaly monitor |
 |---|---|
-| ![](docs/screenshots/exporter-dds.png) | ![](docs/screenshots/regulator.png) |
+| ![](docs/screenshots/exporter-dds.jpg) | ![](docs/screenshots/regulator.jpg) |
+
+| Bahasa Indonesia, light theme (farmer) | Verify page — no wallet needed |
+|---|---|
+| ![](docs/screenshots/farmer-id-light.jpg) | ![](docs/screenshots/verify.jpg) |
 
 ## Deployed on Base Sepolia
 
@@ -207,12 +225,33 @@ Configuration (AOI, years, datasets) lives in [`oracle/config.yaml`](oracle/conf
 ```bash
 cd frontend && npm install
 npm run dev                     # syncs wasm + zkey into public/zk (gitignored), serves http://localhost:5173
-npm test                        # 13 vitest tests (client Merkle paths vs. the published tree, DDS, log fetching)
+npm test                        # 15 vitest tests (client Merkle paths vs. the published tree, DDS, log windows)
 npm run build                   # tsc + vite build → dist/
 ```
 
-Pages: `/farmer`, `/exporter`, `/verify/:id`, `/regulator`. A wallet on Base Sepolia (MetaMask or any injected wallet) is
+Pages: `/` (a seven-chapter, scroll-driven landing page drawn from the real grid and live chain data), `/farmer`,
+`/exporter`, `/verify/:id`, `/regulator`, and `/flow` — the whole process in six plain-language steps (a clickable
+strip plus one line per step that opens for its detail). A wallet on Base Sepolia (MetaMask or any injected wallet) is
 needed only to submit attestations.
+
+- **Landing chapters** — a hero canvas that renders the 40 000 published cells as pixels (ambient twinkle, satellite
+  sweep, pointer readout of the real row/col/label, click pulses); *The forest, 2020 → 2025*: a pinned timeline you
+  scrub by scrolling, cleared cells turning amber season by season; *The problem*: a paper interlude; *How it works*: a
+  phone mock-up in a sticky, tilting frame whose screen follows the step you are reading; *Your secret*: a flip card of
+  attestation #1 as the chain sees it vs. the network tab while a proof is made; *The two models*: a sideways strip
+  with the RandomForest radar and the IsolationForest ranking; *Your turn*: the live attestation feed and the CTA.
+  Chapter dots on the right jump between them (GSAP ScrollTrigger; single column on phones).
+- **Dark / light theme** — toggle in the header (circular reveal via the View Transitions API); defaults to the system
+  setting, remembered in `localStorage`, applied before first paint by an inline script in `index.html`.
+- **English / Bahasa Indonesia** — `EN / ID` toggle in the header; defaults to the browser language. Dictionaries live in
+  `src/i18n/{en,id}.ts` (typed, every key must exist in both). Commodity names are translated for display only — the
+  on-chain `commodityHash` always uses the English `"<HS>:<description>"` string.
+- **Look and motion** — a "forest night" editorial theme (Fraunces / Instrument Sans / JetBrains Mono via Google Fonts)
+  with lucide icons throughout, word-mask headlines, magnetic buttons, 3D-tilting visuals, a custom cursor (landing
+  only), a data marquee, pointer-following panel glows and page transitions. Everything respects
+  `prefers-reduced-motion`. The farmer map sits on Esri World Imagery tiles.
+- **Chain reads** — `eth_getLogs` is used only for transaction links, always in ≤ 9 000-block windows estimated from the
+  attestation timestamps (the public RPC caps a range at 10 000 blocks); everything else comes from contract reads.
 
 ### 5 · Demo data and the anomaly monitor
 
@@ -271,7 +310,8 @@ docs/         architecture.{svg,png}, demo-script.md, devpost.md, decisions.md, 
 
 - Hansen, M.C. et al. *Global Forest Change* v1.12 (2000–2024), via Google Earth Engine (`UMD/hansen/global_forest_change_2024_v1_12`).
 - Copernicus Sentinel-2 Surface Reflectance (Harmonized), via Google Earth Engine.
-- circom / circomlib / snarkjs (iden3), Foundry, viem/wagmi, Leaflet + OpenStreetMap tiles, poseidon-lite.
+- circom / circomlib / snarkjs (iden3), Foundry, viem/wagmi, Leaflet with Esri World Imagery tiles (© Esri, Maxar,
+  Earthstar Geographics & the GIS User Community), poseidon-lite, GSAP, Fraunces / Instrument Sans / JetBrains Mono.
 
 The DDS JSON produced here is a conceptual mapping to the EUDR Due Diligence Statement fields, not the official TRACES
 format. All wallets and contracts are on a testnet; nothing here is audited.

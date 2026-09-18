@@ -7,6 +7,8 @@ import { addressUrl, shortHex, txUrl } from "../lib/contract";
 import { commodityFromHash, fetchAttestationsOf, fetchGridsFor, formatTime, toHex32, type AttestationRecord, type GridRecordOnchain } from "../lib/registry";
 import { buildDds, ddsFileName } from "../lib/dds";
 import { CHAIN_ID, REGISTRY_ADDRESS } from "../config";
+import { useI18n, type Key } from "../i18n";
+import { Package } from "lucide-react";
 
 type State =
   | { status: "idle" }
@@ -26,6 +28,7 @@ function download(name: string, contents: string) {
 }
 
 export default function Exporter() {
+  const { t } = useI18n();
   const { address: wallet } = useAccount();
   const publicClient = usePublicClient();
   const [manual, setManual] = useState("");
@@ -77,33 +80,44 @@ export default function Exporter() {
   }
 
   return (
-    <div className="page">
-      <section className="card">
-        <h1>Exporter · attestations addressed to you</h1>
-        <p className="muted">
-          Attestations are bound to the exporter address that submitted them. Select the ones for a shipment and export a
-          Due Diligence Statement (DDS) JSON — a conceptual mapping to the TRACES DDS fields, not the official format.
-        </p>
-        {!wallet && (
-          <label className="form">
-            Connect a wallet (top right), or view the public attestation list of any exporter address
-            <input className="mono" value={manual} onChange={(e) => setManual(e.target.value.trim())} placeholder="0x…" spellCheck={false} />
-          </label>
-        )}
-        {address && (
-          <p className="hint">
-            Exporter <a href={addressUrl(address)} target="_blank" rel="noreferrer" className="mono">{address}</a>
-          </p>
-        )}
-      </section>
+    <div className="app-page wide">
+      <header className="page-head">
+        <p className="eyebrow">{t("exporter.eyebrow")}</p>
+        <h1>
+          {t("exporter.h")} <em>{t("exporter.hEm")}</em>
+        </h1>
+        <p className="lede">{t("exporter.lede")}</p>
+      </header>
 
-      {state.status === "loading" && <p className="card hint">Loading attestations from Base Sepolia…</p>}
-      {state.status === "error" && <p className="card alert bad">Could not load attestations: {state.message}</p>}
+      {!wallet && (
+        <section className="panel">
+          <div className="form">
+            <label>
+              {t("exporter.addr")}
+              <input className="mono" value={manual} onChange={(e) => setManual(e.target.value.trim())} placeholder="0x…" spellCheck={false} />
+            </label>
+          </div>
+        </section>
+      )}
+      {address && (
+        <p className="hint">
+          {t("exporter.label")}{" "}
+          <a href={addressUrl(address)} target="_blank" rel="noreferrer" className="mono">
+            {address}
+          </a>
+        </p>
+      )}
+
+      {state.status === "loading" && <p className="panel hint">{t("exporter.loading")}</p>}
+      {state.status === "error" && <p className="panel alert bad">{t("exporter.error", { msg: state.message })}</p>}
 
       {state.status === "ready" && (
-        <section className="card">
-          <h2>{state.atts.length} attestation{state.atts.length === 1 ? "" : "s"}</h2>
-          {state.atts.length === 0 && <p className="muted">No attestations yet for this address.</p>}
+        <section className="panel">
+          <div className="panel-head">
+            <span className="panel-num">{String(state.atts.length).padStart(2, "0")}</span>
+            <span className="panel-title"><Package size={16} />{state.atts.length === 1 ? t("exporter.one") : t("exporter.many")}</span>
+          </div>
+          {state.atts.length === 0 && <p className="muted">{t("exporter.none")}</p>}
           {state.atts.length > 0 && (
             <div className="tablewrap">
               <table className="table">
@@ -112,17 +126,17 @@ export default function Exporter() {
                     <th>
                       <input
                         type="checkbox"
-                        aria-label="select all"
+                        aria-label={t("exporter.selectAll")}
                         checked={selected.size === state.atts.length}
                         onChange={(e) => setSelected(e.target.checked ? new Set(state.atts.map((a) => a.id)) : new Set())}
                       />
                     </th>
-                    <th>id</th>
-                    <th>season</th>
-                    <th>commodity</th>
-                    <th>nullifier</th>
-                    <th>time</th>
-                    <th>tx</th>
+                    <th>{t("exporter.col.id")}</th>
+                    <th>{t("exporter.col.season")}</th>
+                    <th>{t("exporter.col.commodity")}</th>
+                    <th>{t("exporter.col.nullifier")}</th>
+                    <th>{t("exporter.col.time")}</th>
+                    <th>{t("exporter.col.tx")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,12 +152,12 @@ export default function Exporter() {
                         </td>
                         <td>{a.season}</td>
                         <td>
-                          {c.description} <span className="muted">(HS {c.hsCode})</span>
+                          {t(`commodity.${c.key}` as Key)} <span className="muted">(HS {c.hsCode})</span>
                         </td>
                         <td className="mono" title={toHex32(a.nullifier)}>
                           {shortHex(toHex32(a.nullifier))}
                         </td>
-                        <td>{formatTime(a.timestamp)}</td>
+                        <td className="mono small">{formatTime(a.timestamp)}</td>
                         <td>
                           {a.txHash ? (
                             <a href={txUrl(a.txHash)} target="_blank" rel="noreferrer" className="mono">
@@ -162,19 +176,17 @@ export default function Exporter() {
           )}
 
           {state.atts.length > 0 && (
-            <div className="form" style={{ marginTop: 12 }}>
+            <div className="form" style={{ marginTop: 20 }}>
               <label>
-                Operator EORI (optional, written into the DDS)
+                {t("exporter.eori")}
                 <input value={eori} onChange={(e) => setEori(e.target.value.trim())} placeholder="PLACEHOLDER" />
               </label>
               <div className="row">
                 <button className="btn primary" disabled={docs.length === 0} onClick={exportDds}>
-                  Export DDS JSON ({selected.size} selected{docs.length > 1 ? `, ${docs.length} files` : ""})
+                  {t("exporter.export", { n: selected.size, files: docs.length > 1 ? t("exporter.files", { n: docs.length }) : "" })}
                 </button>
               </div>
-              {docs.length > 1 && (
-                <p className="hint">The selection spans several commodities or seasons; one DDS file is produced per combination.</p>
-              )}
+              {docs.length > 1 && <p className="hint">{t("exporter.multi")}</p>}
             </div>
           )}
         </section>

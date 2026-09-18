@@ -57,6 +57,11 @@ export const addressUrl = (addr: string) => `${EXPLORER_URL}/address/${addr}`;
 
 export const shortHex = (hex: string, n = 6) => (hex.length > 2 * n + 2 ? `${hex.slice(0, n + 2)}…${hex.slice(-n)}` : hex);
 
+/** Contract errors that have a translated hint (errors.<name> in the dictionaries). */
+export const KNOWN_ERRORS = ["NullifierAlreadyUsed", "ExporterMismatch", "InvalidProof", "UnknownRootOrGrid", "SeasonOutOfRange", "UserRejected", "Reverted"] as const;
+export type KnownError = (typeof KNOWN_ERRORS)[number];
+export const isKnownError = (name: string): name is KnownError => (KNOWN_ERRORS as readonly string[]).includes(name);
+
 const ERROR_HINTS: Record<string, string> = {
   NullifierAlreadyUsed: "This cell has already been attested for this season — a plot can only be sold once per season.",
   ExporterMismatch: "The proof is bound to a different exporter address than the wallet sending the transaction.",

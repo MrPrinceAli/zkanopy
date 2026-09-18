@@ -1,5 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { fetchRangeAdaptive, type AttestedLog } from "./logs";
+import { chunkRanges, estimateBlock, fetchRangeAdaptive, windowAround, type AttestedLog } from "./logs";
+import { BLOCK_ANCHOR, REGISTRY_DEPLOY_BLOCK } from "../config";
+
+describe("chunkRanges / block estimation", () => {
+  it("tiles a range into <= 9000-block chunks without gaps", () => {
+    const chunks = chunkRanges(100n, 20_000n);
+    expect(chunks[0]).toEqual([100n, 9_099n]);
+    expect(chunks[chunks.length - 1][1]).toBe(20_000n);
+    for (let i = 1; i < chunks.length; i++) expect(chunks[i][0]).toBe(chunks[i - 1][1] + 1n);
+    expect(chunkRanges(5n, 5n)).toEqual([[5n, 5n]]);
+  });
+
+  it("estimates blocks from timestamps at 2 s per block and clamps the window to the deploy block", () => {
+    expect(estimateBlock(BLOCK_ANCHOR.timestamp)).toBe(BigInt(BLOCK_ANCHOR.block));
+    expect(estimateBlock(BLOCK_ANCHOR.timestamp + 20)).toBe(BigInt(BLOCK_ANCHOR.block + 10));
+    const w = windowAround(BLOCK_ANCHOR.timestamp - 100_000, BLOCK_ANCHOR.timestamp);
+    expect(w.fromBlock).toBe(BigInt(REGISTRY_DEPLOY_BLOCK));
+    expect(w.toBlock).toBe(BigInt(BLOCK_ANCHOR.block) + 2_500n);
+  });
+});
 
 const mk = (block: bigint): AttestedLog => ({
   id: block,

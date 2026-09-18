@@ -13,6 +13,11 @@ export const REGISTRY_ADDRESS = "0xd5569a4557E4CaE10464Ff868f6A3594014D852f" as 
 export const VERIFIER_ADDRESS = "0x0d8958182C99a481b0F76D1C68Fdf7C23921ffBb" as const;
 // Block the Registry was deployed at; used as `fromBlock` when scanning `Attested` logs.
 export const REGISTRY_DEPLOY_BLOCK = 46963452;
+// A known (block, timestamp) pair on this chain — the registerRoot transaction — plus the chain's block time,
+// used to estimate the block of an attestation from its timestamp so log queries can stay narrow
+// (the public RPC caps eth_getLogs at 10 000 blocks).
+export const BLOCK_ANCHOR = { block: 46964085, timestamp: 1789696458 } as const;
+export const BLOCK_TIME_S = 2;
 
 // Public signal order of the circuit (frozen since Phase 1, PRD 5.3).
 export const PUBLIC_SIGNALS = ["nullifier", "root", "season", "exporter", "lat0S", "lon0S", "stepS"] as const;
