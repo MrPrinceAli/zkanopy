@@ -373,7 +373,15 @@ function DataStatus({ state }: { state: DataState }) {
   return (
     <p className="hint row" style={{ marginTop: 14 }}>
       <span>
-        {t("farmer.status", { name: data.tree.name, v: data.tree.version, rows: data.tree.rows, cols: data.tree.cols, id: data.record.gridId })}{" "}
+        {t("farmer.status", {
+          name: data.tree.name,
+          v: data.tree.version,
+          rows: data.tree.rows,
+          cols: data.tree.cols,
+          id: data.record.gridId,
+          // The grid is a yearly snapshot, so say which one is being served (improvement 5).
+          date: new Date(data.record.publishedAt * 1000).toISOString().slice(0, 10),
+        })}{" "}
         <span className="mono">{shortHex(data.record.rootHex)}</span>
       </span>
       {verified ? (

@@ -31,7 +31,7 @@ export const en = {
   "flow.s1.t": "Satellites become a public map",
   "flow.s1.s": "Public satellite data is turned into a map of 100 m cells — clean, or flagged after 2020 — and its fingerprint is published on the blockchain.",
   "flow.s1.d":
-    "Hansen and Sentinel-2 data are aggregated into 40 000 cells. A machine-learning model double-checks the labels and may only make the map stricter; disputed cells go to a human. Only one hash of the whole map (the root) is written on-chain, so anyone can check that the map was not altered.",
+    "Hansen and Sentinel-2 data are aggregated into 40 000 cells. A machine-learning model double-checks the labels and may only make the map stricter; disputed cells go to a human. Only one hash of the whole map (the root) is written on-chain, so anyone can check that the map was not altered. The map is a snapshot: the satellite source is published once a year, so every map carries the version and date it was published under.",
   "flow.s2.t": "The farmer taps their plot",
   "flow.s2.s": "In the app, on a phone. No account, no upload — the location stays on the device.",
   "flow.s2.d":
@@ -43,11 +43,11 @@ export const en = {
   "flow.s4.t": "The blockchain verifies and records it",
   "flow.s4.s": "A smart contract checks the proof, refuses a second claim on the same plot in the same season, and stores an attestation.",
   "flow.s4.d":
-    "The farmer's wallet or the exporter sends the proof as a normal transaction. The contract rejects it if the nullifier was seen before — that is what makes double-selling impossible. On success an attestation with a public number is stored; no coordinates exist anywhere on the chain.",
+    "The farmer's wallet or the exporter sends the proof as a normal transaction. The contract rejects it if the nullifier was seen before — that is what makes double-selling impossible. On success an attestation with a public number is stored; no coordinates exist anywhere on the chain. One limit is worth saying out loud: this proves a plot is clean, not that it belongs to whoever claimed it. Having a cooperative co-sign the claim is the intended fix.",
   "flow.s5.t": "The exporter files the paperwork",
   "flow.s5.s": "The attestations behind a shipment become a Due Diligence Statement draft for the EU.",
   "flow.s5.d":
-    "In the exporter view, the attestations addressed to the wallet are listed. The exporter selects the ones behind a shipment and downloads a DDS document that references each attestation. In this prototype it is a conceptual mapping to the EU's TRACES fields, not the official format.",
+    "In the exporter view, the attestations addressed to the wallet are listed. The exporter selects the ones behind a shipment and downloads a DDS document that references each attestation. In this prototype it is a conceptual mapping to the EU's TRACES fields, not the official format. The law still requires this buyer to hold the plot's geolocation, and it receives it directly from the farmer — the difference is that nobody else in the chain does.",
   "flow.s6.t": "Anyone verifies, a monitor watches",
   "flow.s6.s": "Every attestation has a public page; an anomaly model flags exporters that claim too much, too fast.",
   "flow.s6.d":
@@ -150,7 +150,7 @@ export const en = {
   "privacy.cellV": "row 100 col 100",
   "privacy.witnessV": "discarded after proving",
   "privacy.peek": "hover to peek — only this device ever knew it",
-  "privacy.note": "The whole grid is downloaded to the client, so even the lookup of your cell happens locally — the server never learns which cell was requested.",
+  "privacy.note": "The whole grid is downloaded to the client, so even the lookup of your cell happens locally — the server never learns which cell was requested. To be exact about the claim: the buyer who files the EU paperwork is still legally required to hold the plot's geolocation. What changes is that only that one buyer gets it, instead of every platform and prospective buyer along the chain.",
 
   // models
   "ai.eyebrow": "Chapter 5 · The watchers",
@@ -236,7 +236,7 @@ export const en = {
     "Tap your plot on the map. Your browser looks up the cell, builds a zero-knowledge proof that the cell is clean in the published satellite grid, and only the proof — never the coordinates — goes on-chain.",
   "farmer.loading": "Loading the published grid (tree.json, ~3 MB)…",
   "farmer.loadError": "Could not load grid data: {msg}",
-  "farmer.status": "Grid {name} v{v} · {rows}×{cols} cells · grid id {id} · root",
+  "farmer.status": "Grid {name} v{v} · {rows}×{cols} cells · grid id {id} · published {date} · root",
   "farmer.verified": "matches on-chain root",
   "farmer.unverified": "on-chain check unavailable",
   "farmer.differs": "differs from on-chain root",

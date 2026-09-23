@@ -26,7 +26,9 @@ deforested since 2020"* cryptographically, keep the coordinates on their own pho
    on the labels, and publishes the grid's Poseidon **Merkle root** on Base Sepolia.
 2. A **farmer** taps their plot on a map. Their browser computes the Merkle path locally and generates a **Groth16
    zero-knowledge proof** (~0.5 s) that the plot lies in a *clean* cell of the published grid. The coordinates never leave
-   the device.
+   the device. To be precise about the claim: EUDR still obliges the EU operator to hold the plot's geolocation for its
+   DDS, so ZKanopy does not abolish that duty — it shrinks the blast radius, from every platform, prospective buyer and
+   intermediary in the chain down to the single counterparty that is legally bound to hold it.
 3. The **Registry contract** verifies the proof, records a **nullifier** derived from (cell, season) so the same plot
    cannot be attested twice in a season, and emits an attestation bound to the exporter's address.
 4. The **exporter** collects attestations and exports a **Due Diligence Statement JSON** (conceptual mapping to TRACES
@@ -72,6 +74,20 @@ deforested since 2020"* cryptographically, keep the coordinates on their own pho
 Zero-knowledge proofs are only as trustworthy as the data they prove against — so we spent as much effort on labelling
 provenance (metadata hashes on-chain, review queues, honest metrics) as on the circuit. A weak signal reported honestly
 (F1 0.22 for partial-cell clearing from annual NDVI) is more useful to a regulator than an inflated one.
+
+## Known limitations
+
+- **No proof of land ownership.** The circuit proves a *cell* is clean; nothing binds the claimant to it. Because a cell
+  can be attested only once per season, a bad actor could even pre-claim clean cells and lock the real farmer out until
+  the next season. A cooperative co-signature is the intended fix.
+- **Satellite "loss" is not EUDR "deforestation".** Hansen sees that tree cover disappeared, not what the land became;
+  EUDR only prohibits conversion of forest to agricultural use. ZKanopy is a screening layer that narrows what a human
+  must inspect, not a verdict.
+- **One plot = one ~100 m cell**, and **one published region** (Aceh) so far — adding a region is a config change plus a
+  single transaction, but a farmer outside it cannot use the app today.
+- **The map is a yearly snapshot**; Hansen v1.12 tops out at `lossyear` 24, so the effective window is 2021–2024.
+- **A single oracle publishes the root**, the **trusted setup has one contributor**, the **DDS export is a conceptual
+  mapping** rather than a real TRACES filing, and everything runs on **testnet, unaudited**.
 
 ## What's next for ZKanopy
 

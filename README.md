@@ -32,9 +32,12 @@ Built solo for the **IEEE ClimateChain Global Hackathon 2026 — Sustainable Sup
 
 1. **Oracle** — builds a 200 × 200 grid of ~100 m cells over a coffee landscape in the Gayo highlands (Aceh, Indonesia)
    from Hansen Global Forest Change and Sentinel-2 NDVI, labels each cell *clean* or *loss*, runs a **RandomForest QC**
-   (AI #1) on the labels, and publishes the grid's Poseidon **Merkle root** to the `Registry` contract.
+   (AI #1) on the labels, and publishes the grid's Poseidon **Merkle root** to the `Registry` contract. The grid is a
+   snapshot: Hansen publishes annually, so each release is republished as a new grid version and the app shows which
+   version and publication date it is serving.
 2. **Farmer** — taps the plot on a map; the browser resolves the cell, computes the Merkle path locally and generates a
-   **Groth16 zero-knowledge proof** (~0.5 s) that the cell is clean. Coordinates never leave the device.
+   **Groth16 zero-knowledge proof** (~0.5 s) that the cell is clean. Coordinates never leave the device — see
+   [what this does and does not hide](#privacy-and-security) for what that claim covers and what it does not.
 3. **Contract** — verifies the proof, checks the root and grid parameters, binds the proof to the exporter, records a
    **nullifier** = Poseidon(row, col, season) so one cell can be attested once per season, and emits `Attested`.
 4. **Exporter** — lists attestations addressed to its wallet and exports a **DDS JSON**; anyone can open
@@ -105,6 +108,13 @@ wallet that fired 25 attestations in 65 s scores **1.00**; ordinary exporters sc
 
 ## Privacy and security
 
+- **What this does and does not hide.** ZKanopy never transmits, stores or publishes a plot's coordinates — not to the
+  chain, not to this platform, not to the exporter's dashboard. It does **not** remove the EUDR geolocation duty: the
+  operator placing the goods on the EU market must still hold the plot's geolocation for its Due Diligence Statement.
+  What changes is the blast radius. The coordinates go to that one legally bound counterparty instead of being copied
+  into every platform, prospective buyer and intermediary along the way. And because the nullifier is
+  `Poseidon(row, col, season)`, a field auditor standing on the plot can re-derive it and match it against the
+  attestation — privacy towards the public costs nothing in accountability towards the regulator.
 - **On-chain:** `root, nullifier, season, exporter, lat0S, lon0S, stepS`, `gridId`, `commodityHash`. **Never** the
   plot's latitude/longitude or its cell.
 - The whole grid (`tree.json`, 3 MB) is downloaded to the client so Merkle-path lookups happen locally — the server never
@@ -296,6 +306,22 @@ docs/         architecture.{svg,png}, demo-script.md, devpost.md, decisions.md, 
 | Auditability | Platform logs | Public event log; `/verify/:id` needs no account |
 | Lock-in | Farmer data is the platform's asset | Open contracts and formats; the farmer keeps the data |
 | Trade-off | Simple, mature, no cryptography | One oracle publishes the grid (threshold attestors on the roadmap); proofs need a modern browser |
+
+## Known limitations
+
+Stated plainly, because a reviewer will find them anyway.
+
+| # | Limitation | What it means in practice |
+|---|---|---|
+| 1 | **No proof of land ownership.** The circuit proves a *cell* is clean; nothing binds the claimant to that cell. | Anyone can attest a cell they do not farm. Worse, because a cell can be attested only once per season, a bad actor could pre-claim clean cells and lock the real farmer out until the next season. A cooperative co-signature is the intended fix (roadmap). |
+| 2 | **Satellite "loss" is not EUDR "deforestation".** Hansen reports that tree cover disappeared, not what the land became. | Logging followed by regrowth, fire and storm damage all register as loss, while EUDR only prohibits conversion of forest to agricultural use. ZKanopy is therefore a *screening* layer: it narrows what a human has to look at, it does not issue a verdict. |
+| 3 | **One plot = one ~100 m cell.** | Fits a smallholder plot; a larger or irregularly shaped holding is not represented. Polygons with the 128 m buffer are roadmap. |
+| 4 | **One published region.** The Gayo highlands (Aceh) is the only grid registered so far. | The contract already stores many grids and adding one is a config change plus a single transaction, but a farmer outside the published area cannot use the app today. |
+| 5 | **The map is only as fresh as its source.** Hansen publishes annually, and v1.12 tops out at `lossyear` 24. | The effective detection window is 2021–2024; clearing from the last few months is not visible yet. Each release means republishing the root as a new grid version. |
+| 6 | **A single oracle publishes the root.** | One wallet could publish a false grid. Threshold attestors are roadmap. |
+| 7 | **The trusted setup has one contributor.** | Acceptable for a hackathon MVP, not for production. A multi-party ceremony must replace it. |
+| 8 | **The DDS export is a conceptual mapping**, not the official TRACES format, and nothing is filed with any EU system. | The exporter still files the real statement through the official channel. |
+| 9 | **Testnet only, not audited, contracts not source-verified on Basescan.** | Nothing here should be used for a real shipment. |
 
 ## Roadmap
 

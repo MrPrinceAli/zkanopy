@@ -31,7 +31,8 @@ while speaking:
 > "EUDR: every plot behind a shipment of cocoa, coffee, palm oil or rubber must be geolocated and checked against a
 > 31 December 2020 deforestation cut-off. Today smallholders hand raw coordinates to a central platform — a
 > data-sovereignty risk — and the same plot can be sold to several exporters. ZKanopy lets a farmer *prove* the plot is
-> clean without revealing where it is, and makes double-selling impossible."
+> clean without handing that location to everyone who asks, and makes double-selling impossible. The buyer who actually
+> files the paperwork still gets the coordinates — nobody else does."
 
 ## 0:30–1:00 · Architecture
 

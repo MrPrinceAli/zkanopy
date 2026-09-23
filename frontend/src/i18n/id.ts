@@ -31,7 +31,7 @@ export const id: Record<keyof typeof en, string> = {
   "flow.s1.t": "Satelit menjadi peta publik",
   "flow.s1.s": "Data satelit publik diubah menjadi peta sel 100 m — bersih, atau terindikasi setelah 2020 — dan sidik jarinya dipublikasikan di blockchain.",
   "flow.s1.d":
-    "Data Hansen dan Sentinel-2 diagregasi menjadi 40.000 sel. Model machine learning memeriksa ulang labelnya dan hanya boleh membuat peta lebih ketat; sel yang disengketakan diserahkan ke manusia. Hanya satu hash dari seluruh peta (root) yang ditulis on-chain, jadi siapa pun bisa memastikan peta tidak diubah.",
+    "Data Hansen dan Sentinel-2 diagregasi menjadi 40.000 sel. Model machine learning memeriksa ulang labelnya dan hanya boleh membuat peta lebih ketat; sel yang disengketakan diserahkan ke manusia. Hanya satu hash dari seluruh peta (root) yang ditulis on-chain, jadi siapa pun bisa memastikan peta tidak diubah. Peta ini sebuah potret waktu: sumber satelitnya terbit setahun sekali, jadi tiap peta membawa versi dan tanggal penerbitannya.",
   "flow.s2.t": "Petani mengetuk lahannya",
   "flow.s2.s": "Di aplikasi, lewat ponsel. Tanpa akun, tanpa unggah — lokasinya tetap di perangkat.",
   "flow.s2.d":
@@ -43,11 +43,11 @@ export const id: Record<keyof typeof en, string> = {
   "flow.s4.t": "Blockchain memverifikasi dan mencatatnya",
   "flow.s4.s": "Smart contract memeriksa bukti, menolak klaim kedua atas lahan yang sama di musim yang sama, dan menyimpan atestasi.",
   "flow.s4.d":
-    "Dompet petani atau eksportir mengirim bukti sebagai transaksi biasa. Kontrak menolaknya jika nullifier pernah terlihat — itulah yang membuat penjualan ganda mustahil. Jika lolos, atestasi dengan nomor publik disimpan; tidak ada koordinat di mana pun di blockchain.",
+    "Dompet petani atau eksportir mengirim bukti sebagai transaksi biasa. Kontrak menolaknya jika nullifier pernah terlihat — itulah yang membuat penjualan ganda mustahil. Jika lolos, atestasi dengan nomor publik disimpan; tidak ada koordinat di mana pun di blockchain. Satu batas perlu disebut terang-terangan: ini membuktikan sebuah petak bersih, bukan bahwa petak itu milik si pengklaim. Klaim yang ikut ditandatangani koperasi adalah perbaikan yang direncanakan.",
   "flow.s5.t": "Eksportir menyusun dokumennya",
   "flow.s5.s": "Atestasi di balik satu pengiriman menjadi draf Due Diligence Statement untuk Uni Eropa.",
   "flow.s5.d":
-    "Di tampilan eksportir, atestasi yang ditujukan ke dompet itu didaftar. Eksportir memilih yang ada di balik satu pengiriman dan mengunduh dokumen DDS yang merujuk tiap atestasi. Di prototipe ini formatnya pemetaan konseptual ke kolom TRACES Uni Eropa, bukan format resmi.",
+    "Di tampilan eksportir, atestasi yang ditujukan ke dompet itu didaftar. Eksportir memilih yang ada di balik satu pengiriman dan mengunduh dokumen DDS yang merujuk tiap atestasi. Di prototipe ini formatnya pemetaan konseptual ke kolom TRACES Uni Eropa, bukan format resmi. Hukum tetap mewajibkan pembeli ini menyimpan geolokasi lahan, dan ia menerimanya langsung dari petani — bedanya, tidak ada pihak lain di rantai itu yang ikut menerimanya.",
   "flow.s6.t": "Siapa pun memverifikasi, monitor mengawasi",
   "flow.s6.s": "Setiap atestasi punya halaman publik; model anomali menandai eksportir yang mengklaim terlalu banyak, terlalu cepat.",
   "flow.s6.d":
@@ -145,7 +145,7 @@ export const id: Record<keyof typeof en, string> = {
   "privacy.cellV": "baris 100 kolom 100",
   "privacy.witnessV": "dibuang setelah pembuktian",
   "privacy.peek": "arahkan kursor untuk mengintip — hanya perangkat ini yang pernah tahu",
-  "privacy.note": "Seluruh grid diunduh ke klien, jadi pencarian selmu pun terjadi secara lokal — server tidak pernah tahu sel mana yang diminta.",
+  "privacy.note": "Seluruh grid diunduh ke klien, jadi pencarian selmu pun terjadi secara lokal — server tidak pernah tahu sel mana yang diminta. Supaya klaimnya tepat: pembeli yang mengurus dokumen Uni Eropa tetap wajib secara hukum menyimpan geolokasi lahan. Yang berubah, hanya pembeli itu yang menerimanya, bukan setiap platform dan calon pembeli di sepanjang rantai.",
 
   "ai.eyebrow": "Bab 5 · Para pengawas",
   "ai.h": "AI yang memeriksa peta,",
@@ -224,7 +224,7 @@ export const id: Record<keyof typeof en, string> = {
     "Ketuk lahanmu di peta. Peramban mencari selnya, membangun bukti zero-knowledge bahwa sel itu bersih di grid satelit yang dipublikasikan, dan hanya bukti — bukan koordinat — yang dikirim on-chain.",
   "farmer.loading": "Memuat grid yang dipublikasikan (tree.json, ~3 MB)…",
   "farmer.loadError": "Tidak dapat memuat data grid: {msg}",
-  "farmer.status": "Grid {name} v{v} · {rows}×{cols} sel · grid id {id} · root",
+  "farmer.status": "Grid {name} v{v} · {rows}×{cols} sel · grid id {id} · terbit {date} · root",
   "farmer.verified": "cocok dengan root on-chain",
   "farmer.unverified": "cek on-chain tidak tersedia",
   "farmer.differs": "berbeda dari root on-chain",
