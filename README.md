@@ -1,5 +1,13 @@
 # ZKanopy
 
+[![License](https://img.shields.io/github/license/MrPrinceAli/zkanopy)](LICENSE)
+[![IEEE ClimateChain 2026](https://img.shields.io/badge/IEEE_ClimateChain-2026-00629B?logo=ieee&logoColor=white)](docs/devpost.md)
+[![Base Sepolia](https://img.shields.io/badge/Base-Sepolia-0052FF?logo=coinbase&logoColor=white)](#deployed-on-base-sepolia)
+[![Circom](https://img.shields.io/badge/Circom-Groth16-000000)](circuits/)
+[![Foundry](https://img.shields.io/badge/Foundry-Solidity-000000)](contracts/)
+[![Vite](https://img.shields.io/badge/Vite-TypeScript-646CFF?logo=vite&logoColor=white)](frontend/)
+[![Python](https://img.shields.io/badge/Python-oracle-3776AB?logo=python&logoColor=white)](oracle/)
+
 **Prove your farm is deforestation-free — without revealing where it is.**
 
 A smallholder farmer proves cryptographically that their plot has **not been deforested after 31 December 2020** (the
