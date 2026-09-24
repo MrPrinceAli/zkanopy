@@ -3014,3 +3014,59 @@ html.cursor-seen .cursor-ring {
     display: none;
   }
 }
+
+/* --- Farmer map search (Phase 7): local lookup over the published regions, no request leaves the page. */
+.map-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg-3);
+}
+.map-search input {
+  flex: 1;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  padding: 0;
+}
+.map-search input:focus {
+  outline: none;
+}
+.map-search-results {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  right: 12px;
+  z-index: 1000;
+  margin: 6px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 12px 32px var(--shadow);
+}
+.map-search-results button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.map-search-results button:hover,
+.map-search-results button:focus-visible {
+  background: var(--bg-3);
+}
+.map-search-results .muted {
+  font-size: 12px;
+}

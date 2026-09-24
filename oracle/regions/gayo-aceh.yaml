@@ -1,6 +1,10 @@
 # ZKanopy oracle configuration (PRD 5.5). One AOI = one grid = one Merkle root.
+# One file per region in this folder; the file name is the region slug passed as --region.
 
 name: gayo-aceh-coffee
+label: Gayo highlands, Aceh
+country: Indonesia
+commodity: coffee
 description: >
   Gayo highlands around Takengon, Central Aceh, Indonesia — smallholder arabica coffee
   landscape with mixed forest, the kind of area EUDR due diligence targets.

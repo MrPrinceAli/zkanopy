@@ -1,0 +1,17 @@
+{
+  "lat0S": 102600000,
+  "lon0S": 287950000,
+  "stepS": 900,
+  "cols": 200,
+  "rows": 200,
+  "depth": 16,
+  "name": "daklak-vietnam-coffee",
+  "version": 1,
+  "root": "4738079941751722526776492578294953443569017792864935585579817233820969878563",
+  "rootHex": "0x0a79a8809fbaa7c479b3c2ddeda913539100e74705e79944c701d337e7244423",
+  "clean": 36291,
+  "loss": 3709,
+  "treeSha256": "f3ce4198f6b5bae1f63c6faae0e78d411733a18bbcfa9ec1fd9515f5e4d1d769",
+  "metadataSha256": "46afba742ef6899853967780abe1caca4f660c385ebaedf4949ef32faa3a7528",
+  "generatedAt": "2026-09-24T01:40:07.363Z"
+}

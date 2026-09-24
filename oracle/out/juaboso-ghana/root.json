@@ -1,0 +1,17 @@
+{
+  "lat0S": 96200000,
+  "lon0S": 176900000,
+  "stepS": 900,
+  "cols": 200,
+  "rows": 200,
+  "depth": 16,
+  "name": "juaboso-ghana-cocoa",
+  "version": 1,
+  "root": "7710568082344173592751241438862396429491760729264717095355326655096777388878",
+  "rootHex": "0x110c06e190313bccd4155434068566141a62795d3712fe551012ccee9988b34e",
+  "clean": 34143,
+  "loss": 5857,
+  "treeSha256": "667f93dfdd24ff9b0cd0a60ab900e22566fab38bf607b2325edb36e550e48bcd",
+  "metadataSha256": "1de94f53293517e02850ed551800edd01d84e78f5f39686e84fcd4d6da8888fd",
+  "generatedAt": "2026-09-23T11:33:44.327Z"
+}

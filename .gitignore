@@ -19,8 +19,11 @@ circuits/build/proof.json
 circuits/build/public.json
 oracle/data/
 oracle/out/*
-!oracle/out/ai_report.md
-!oracle/out/root.json
+# Keep the small per-region provenance files; everything else under oracle/out/ is regenerable.
+!oracle/out/*/
+oracle/out/*/*
+!oracle/out/*/ai_report.md
+!oracle/out/*/root.json
 frontend/dist/
 # proving artifacts are synced from circuits/build (or ZKEY_URL) by frontend/scripts/sync-zk.mjs; never commit the zkey
 frontend/public/zk/

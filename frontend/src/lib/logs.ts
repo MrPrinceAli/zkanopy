@@ -1,6 +1,10 @@
 // Attested-event queries that survive public RPC limits: ranges are cut into chunks of at most MAX_RANGE
-// blocks up front (Base's public RPC caps eth_getLogs at 10 000), and a chunk the node still rejects is
-// halved recursively. Callers narrow the range with windowAround() whenever they know a timestamp.
+// blocks up front, and a chunk the node still rejects is halved recursively. Callers narrow the range
+// with windowAround() whenever they know a timestamp.
+//
+// Base's public RPC has tightened its eth_getLogs cap over time: 10 000 blocks when this was written,
+// 1 000 as of 2026-09-23 ("eth_getLogs is limited to a 1,000 range"). MIN_SPLIT_RANGE must stay well
+// below the cap, otherwise the adaptive halving gives up before it reaches an accepted range.
 import type { Address, Hex } from "viem";
 import { REGISTRY_ABI, type ReadClient } from "./contract";
 import { BLOCK_ANCHOR, BLOCK_TIME_S, REGISTRY_ADDRESS, REGISTRY_DEPLOY_BLOCK } from "../config";
@@ -18,10 +22,10 @@ export interface AttestedLog {
 
 const ATTESTED_EVENT = REGISTRY_ABI.find((e) => e.type === "event" && e.name === "Attested")!;
 
-/** Largest range requested in one call (below the public RPC's 10 000-block cap). */
-export const MAX_RANGE = 9_000n;
+/** Largest range requested in one call (at the public RPC's current 1 000-block cap). */
+export const MAX_RANGE = 1_000n;
 /** Smallest range we still split; below this a failure is a real error. */
-export const MIN_SPLIT_RANGE = 2_000n;
+export const MIN_SPLIT_RANGE = 100n;
 
 export interface LogQuery {
   exporter?: Address;

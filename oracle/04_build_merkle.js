@@ -4,12 +4,12 @@
 //   leaf[row*cols+col] = Poseidon(row, col, final_label); empty leaves = Poseidon(0, 0, 0)
 //
 // Outputs:
-//   frontend/public/data/tree.json        { depth, cols, rows, lat0S, lon0S, stepS, root, zeroLeaf, labels, leaves }
-//   frontend/public/data/checkpoint.json  one tree layer (level 8) so the client can build paths cheaply
-//   frontend/public/data/metadata.json    provenance: datasets, AI metrics, sha256(tree.json) -> referenced on-chain
-//   oracle/out/root.json                  root + grid parameters + hashes, consumed by 05_publish_root.js
+//   frontend/public/data/<region>/tree.json        { depth, cols, rows, lat0S, lon0S, stepS, root, zeroLeaf, labels, leaves }
+//   frontend/public/data/<region>/checkpoint.json  one tree layer (level 8) so the client can build paths cheaply
+//   frontend/public/data/<region>/metadata.json    provenance: datasets, AI metrics, sha256(tree.json) -> referenced on-chain
+//   oracle/out/<region>/root.json                  root + grid parameters + hashes, consumed by 05_publish_root.js
 //
-// Usage: node oracle/04_build_merkle.js [--checkpoint-only]
+// Usage: node oracle/04_build_merkle.js [--region <slug>] [--checkpoint-only]
 //   --checkpoint-only  rebuild only checkpoint.json from the published tree.json (tree.json / metadata.json untouched,
 //                      so the on-chain metadataURI hash stays valid)
 
@@ -17,10 +17,11 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { getPoseidon, makeHasher, buildTree } = require("../packages/merkle");
+const { regionFromArgv, outDir, frontendData } = require("./regions");
 
-const ROOT = path.join(__dirname, "..");
-const OUT_DIR = path.join(__dirname, "out");
-const FRONTEND_DATA = path.join(ROOT, "frontend", "public", "data");
+const REGION = regionFromArgv();
+const OUT_DIR = outDir(REGION);
+const FRONTEND_DATA = frontendData(REGION);
 
 /** Minimal CSV reader for the unquoted numeric CSVs produced by the Python steps. */
 function parseCells(csvText) {
@@ -91,10 +92,12 @@ async function checkpointOnly() {
   const cp = checkpointFrom(tree);
   fs.writeFileSync(path.join(FRONTEND_DATA, "checkpoint.json"), JSON.stringify(cp) + "\n");
   fs.writeFileSync(path.join(FRONTEND_DATA, "labels.json"), JSON.stringify(labelsFrom(treeJson)) + "\n");
-  console.log(`wrote frontend/public/data/checkpoint.json (level ${cp.level}, ${cp.nodes.length} nodes) and labels.json for root ${cp.root}`);
+  console.log(`wrote frontend/public/data/${REGION}/checkpoint.json (level ${cp.level}, ${cp.nodes.length} nodes) and labels.json for root ${cp.root}`);
 }
 
 async function main() {
+  fs.mkdirSync(FRONTEND_DATA, { recursive: true });
+  fs.mkdirSync(OUT_DIR, { recursive: true });
   if (process.argv.includes("--checkpoint-only")) return checkpointOnly();
   const grid = JSON.parse(fs.readFileSync(path.join(OUT_DIR, "grid.json"), "utf8"));
   const cells = parseCells(fs.readFileSync(path.join(OUT_DIR, "cells_final.csv"), "utf8"));
@@ -174,7 +177,7 @@ async function main() {
   console.log(`cells ${grid.rows * grid.cols}: clean ${built.cleanCount}, loss ${built.lossCount}`);
   console.log(`root ${treeJson.root}`);
   console.log(`tree.json ${(treeBuf.length / 1e6).toFixed(2)} MB, sha256 ${treeSha}`);
-  console.log(`built in ${((Date.now() - t0) / 1000).toFixed(1)} s -> frontend/public/data/{tree,checkpoint,metadata}.json, oracle/out/root.json`);
+  console.log(`built in ${((Date.now() - t0) / 1000).toFixed(1)} s -> frontend/public/data/${REGION}/{tree,checkpoint,metadata}.json, oracle/out/${REGION}/root.json`);
 }
 
 module.exports = { parseCells, buildFromCells, checkpointFrom, CHECKPOINT_LEVEL };

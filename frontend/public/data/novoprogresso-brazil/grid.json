@@ -1,0 +1,18 @@
+{
+  "chainId": 84532,
+  "registry": "0xd5569a4557E4CaE10464Ff868f6A3594014D852f",
+  "gridId": 5,
+  "version": 1,
+  "root": "15348354000482208497154355844910081617131954461776471230666450865669392713259",
+  "rootHex": "0x21eedc4a9d7b73a939605ab26007f35fe828495848115fea162672b3367a462b",
+  "lat0S": 82850000,
+  "lon0S": 124500000,
+  "stepS": 900,
+  "cols": 200,
+  "rows": 200,
+  "metadataURI": "sha256:a4add0a3712143806dffb3ccc4aea8cc6bfb43bc9e21ee2130034b92e672db79",
+  "publishedAt": 1790214030,
+  "txHash": "0xebb8a80fba3fa1720c6a9d43d0b2806f20476e562d77a4b80c3cf7e0cb9fded7",
+  "blockNumber": 47222871,
+  "treeSha256": "f207b4937aafe35f260b6291ca620fb6e683caa575812f409cca40cae0b2e25a"
+}

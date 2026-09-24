@@ -1,0 +1,41 @@
+# ZKanopy oracle configuration (PRD 5.5). One AOI = one grid = one Merkle root.
+# One file per region in this folder; the file name is the region slug passed as --region.
+
+name: juaboso-ghana-cocoa
+label: Juaboso, Western North
+country: Ghana
+commodity: cocoa
+description: >
+  Cocoa smallholder landscape around Juaboso in Ghana's Western North region, on the edge of the
+  Bia forest reserves — the emblematic EUDR cocoa case, and a different biome from the Aceh grid.
+grid_version: 1
+
+aoi:
+  # Bottom-left corner of the grid, in degrees (WGS84). Longitude is west, so it is negative.
+  lat0: 6.20
+  lon0: -3.10
+  # Cell size in degrees. 0.0009 deg = stepS 900 in the 1e6 fixed-point encoding (~100 m at the equator).
+  step_deg: 0.0009
+  # Same shape as the Aceh grid: 200 x 200 cells = ~20 x 20 km = 40 000 leaves (depth 16 holds 65 536).
+  cols: 200
+  rows: 200
+
+years:
+  baseline: 2020 # EUDR cut-off year (31 Dec 2020)
+  current: 2025
+
+hansen:
+  asset: UMD/hansen/global_forest_change_2024_v1_12
+  # `lossyear` codes counted as post-cut-off deforestation: 21..25 = 2021..2025 (PRD 5.2).
+  loss_years: [21, 25]
+
+sentinel:
+  collection: COPERNICUS/S2_SR_HARMONIZED
+  scale_m: 30 # export resolution for every raster (matches Hansen's native 30 m)
+  max_cloud_pct: 80 # drop scenes with CLOUDY_PIXEL_PERCENTAGE above this before masking
+
+merkle:
+  depth: 16
+
+# On-chain Grid.metadataURI. Empty means "sha256:<hash of this region's metadata.json>".
+metadata_uri: ""

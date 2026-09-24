@@ -44,6 +44,11 @@ Built solo for the **IEEE ClimateChain Global Hackathon 2026 — Sustainable Sup
    `/verify/:id` without a wallet.
 5. **Regulator** — an **IsolationForest** (AI #2) over the on-chain claim log scores exporters for suspicious claiming
    patterns. *The blockchain guarantees the AI's input; the AI watches the blockchain.*
+6. **Field auditor** — on `/field`, an inspector standing on the plot enters the attestation number and the plot's
+   location, and the page recomputes `Poseidon(row, col, season)` and matches it against the nullifier the contract
+   stored. This closes the loop that privacy would otherwise open: the public learns nothing, while an auditor with the
+   farmer's cooperation can prove the inspected plot is exactly the plot that was attested. The coordinates are used in
+   the browser and never sent anywhere — only the attestation number goes to the chain, as a public read.
 
 ## Architecture
 
@@ -115,6 +120,12 @@ wallet that fired 25 attestations in 65 s scores **1.00**; ordinary exporters sc
   into every platform, prospective buyer and intermediary along the way. And because the nullifier is
   `Poseidon(row, col, season)`, a field auditor standing on the plot can re-derive it and match it against the
   attestation — privacy towards the public costs nothing in accountability towards the regulator.
+- **Side channels are real and worth naming.** The proof and the chain never see the plot, but the page still loads
+  satellite tiles from Esri, whose `{z}/{y}/{x}` path *is* a location — at close zoom a tile request narrows the
+  viewport to a few hundred metres. The region search is local (it only matches the published manifest), but the map
+  background is not. So the accurate claim is not "nothing leaves": it is **the exact point never leaves**, while a
+  third-party map provider can tell roughly which area is being browsed. Removing that would mean self-hosting
+  imagery, which is out of scope for this MVP.
 - **On-chain:** `root, nullifier, season, exporter, lat0S, lon0S, stepS`, `gridId`, `commodityHash`. **Never** the
   plot's latitude/longitude or its cell.
 - The whole grid (`tree.json`, 3 MB) is downloaded to the client so Merkle-path lookups happen locally — the server never
@@ -165,14 +176,29 @@ wallet that fired 25 attestations in 65 s scores **1.00**; ordinary exporters sc
 Deployed at block 46963452 (2026-09-18). Owner and oracle: `0x9584D49c674F685D6CD3463D9beBCfF3d8b68923` (project
 testnet wallet). Addresses are also exported from [`frontend/src/config.ts`](frontend/src/config.ts).
 
-| Published grid | |
-|---|---|
-| `gridId` / version | 1 / 1 — `gayo-aceh-coffee` |
-| AOI | 4.55–4.73° N, 96.75–96.93° E (≈ 20 × 20 km), 200 × 200 cells of `stepS = 900` (0.0009°, ~100 m) |
-| Root | `0x09f5f689848d7550839292c2dbefda79081c31a9f77a8384973437713bc9ad7a` |
-| Cells | 40 000 — 35 500 clean / 4 500 loss (Hansen alone: 2 613 loss; AI QC blocked 1 887 more) |
-| `registerRoot` tx | [`0xbe5ebc5c…4fa1`](https://sepolia.basescan.org/tx/0xbe5ebc5cb80b5cbd344187afa7067bd807e1b77d807a37d04a782093885d4fa1) (block 46964085) |
-| Attestations so far | 31 (ids 1–31): 1 from the project wallet, 2 + 3 from two demo exporters, 25 from the rogue demo wallet |
+Five grids are published, across five countries, three continents and three commodities. Each is an independent
+Merkle root; `Registry` stores as many as are registered, and every attestation records which one it was proven
+against. The app reads them from [`frontend/public/data/regions.json`](frontend/public/data/regions.json); the farmer
+just drops a pin and the app finds the grid.
+
+| `gridId` | Region | Country · crop | Hansen loss | AI QC accuracy | F1 (flagged) | Final clean / flagged |
+|---|---|---|---|---|---|---|
+| 1 | Gayo highlands, Aceh | Indonesia · coffee | 6.53 % | 0.8695 | 0.2162 | 35 500 / 4 500 |
+| 2 | Juaboso, Western North | Ghana · cocoa | 9.29 % | 0.8303 | 0.2150 | 34 143 / 5 857 |
+| 3 | Soubré, Nawa | Côte d'Ivoire · cocoa | 8.98 % | 0.8277 | 0.2344 | 34 061 / 5 939 |
+| 4 | Đắk Lắk, Central Highlands | Vietnam · coffee | 5.31 % | 0.8978 | 0.2509 | 36 291 / 3 709 |
+| 5 | Novo Progresso, Pará | Brazil · soy | 18.91 % | 0.8036 | **0.5685** | 29 073 / 10 927 |
+
+All five are 200 × 200 cells of `stepS = 900` (0.0009°, ~100 m) ≈ 20 × 20 km, 40 000 leaves, depth 16, built from real
+Hansen v1.12 and Sentinel-2 data. `registerRoot` transactions are in each region's
+`frontend/public/data/<slug>/grid.json`.
+
+**The Brazil row is the interesting one.** The same model, the same features, the same code — and F1 on the flagged
+class jumps from ~0.22 to 0.57. That is not a better model, it is a bigger signal: on the Amazon frontier a clearing
+takes a whole cell, so annual NDVI sees it, while in a smallholder mosaic one cleared 30 m pixel hides inside a
+hectare of intact canopy. The model's accuracy tracks the *scale of clearing*, which is exactly what the physics
+predicts. That is the case for the conservative `hansen ∧ ai` rule and the human review queue, and the reason
+per-biome calibration is on the roadmap rather than claimed as solved.
 
 ## Reproduce it
 
@@ -217,14 +243,19 @@ forge script script/Deploy.s.sol --rpc-url "$RPC_URL" --private-key "$PRIVATE_KE
 
 ### 3 · Oracle and AI
 
+Each region is one file in [`oracle/regions/`](oracle/regions/) and every step takes `--region <slug>`, writing
+under `oracle/{data,out}/<slug>/` and `frontend/public/data/<slug>/`. Adding a country means adding a YAML file and
+running these six commands; nothing else changes, and an existing grid is never touched.
+
 ```bash
-.venv/bin/earthengine authenticate                     # once; then GEE_PROJECT=<your project> in .env
-.venv/bin/python oracle/01_export_gee.py               # GeoTIFFs → oracle/data/ (~30 s)
-.venv/bin/python oracle/02_build_grid.py               # per-cell frac_loss, NDVI, hansen_label
-.venv/bin/python oracle/03_ai_qc.py                    # RandomForest QC → cells_final.csv, review_queue.csv, ai_report.md
-node oracle/04_build_merkle.js                         # Poseidon tree → frontend/public/data/{tree,checkpoint,metadata}.json
-node oracle/05_publish_root.js                         # Registry.registerRoot → frontend/public/data/grid.json
-.venv/bin/python -m pytest                             # 17 tests
+.venv/bin/earthengine authenticate                          # once; then GEE_PROJECT=<your project> in .env
+R=juaboso-ghana                                             # or gayo-aceh, or a new regions/<slug>.yaml
+.venv/bin/python oracle/01_export_gee.py   --region $R      # GeoTIFFs → oracle/data/$R/ (~2 min)
+.venv/bin/python oracle/02_build_grid.py   --region $R      # per-cell frac_loss, NDVI, hansen_label
+.venv/bin/python oracle/03_ai_qc.py        --region $R      # RandomForest QC → cells_final.csv, review_queue.csv, ai_report.md
+node oracle/04_build_merkle.js             --region $R      # Poseidon tree → frontend/public/data/$R/{tree,checkpoint,metadata}.json
+node oracle/05_publish_root.js             --region $R      # Registry.registerRoot → grid.json + refreshes data/regions.json
+.venv/bin/python -m pytest                                  # 17 tests
 ```
 
 No Earth Engine access? `oracle/02_build_grid.py --synthetic` builds a random grid so the rest of the pipeline runs.
@@ -240,7 +271,8 @@ npm run build                   # tsc + vite build → dist/
 ```
 
 Pages: `/` (a seven-chapter, scroll-driven landing page drawn from the real grid and live chain data), `/farmer`,
-`/exporter`, `/verify/:id`, `/regulator`, and `/flow` — the whole process in six plain-language steps (a clickable
+`/exporter`, `/verify/:id`, `/regulator`, `/field` — the auditor's check, see below — and `/flow`, the whole process in
+six plain-language steps (a clickable
 strip plus one line per step that opens for its detail). A wallet on Base Sepolia (MetaMask or any injected wallet) is
 needed only to submit attestations.
 
@@ -316,7 +348,9 @@ Stated plainly, because a reviewer will find them anyway.
 | 1 | **No proof of land ownership.** The circuit proves a *cell* is clean; nothing binds the claimant to that cell. | Anyone can attest a cell they do not farm. Worse, because a cell can be attested only once per season, a bad actor could pre-claim clean cells and lock the real farmer out until the next season. A cooperative co-signature is the intended fix (roadmap). |
 | 2 | **Satellite "loss" is not EUDR "deforestation".** Hansen reports that tree cover disappeared, not what the land became. | Logging followed by regrowth, fire and storm damage all register as loss, while EUDR only prohibits conversion of forest to agricultural use. ZKanopy is therefore a *screening* layer: it narrows what a human has to look at, it does not issue a verdict. |
 | 3 | **One plot = one ~100 m cell.** | Fits a smallholder plot; a larger or irregularly shaped holding is not represented. Polygons with the 128 m buffer are roadmap. |
-| 4 | **One published region.** The Gayo highlands (Aceh) is the only grid registered so far. | The contract already stores many grids and adding one is a config change plus a single transaction, but a farmer outside the published area cannot use the app today. |
+| 4 | **Five published regions** (Indonesia, Ghana, Côte d'Ivoire, Vietnam, Brazil). | Adding one is a YAML file plus one transaction, but a farmer outside the published areas still cannot use the app; the map shows the outlines so that is visible rather than surprising. Coverage is a data-pipeline cost, not an architectural limit — and labels have to be checked per landscape before a region is worth publishing. |
+| 10 | **The grid has no crop layer.** It measures tree-cover loss and greenness, nothing else. | `commodity` is a label in the region's config, not something detected from imagery. A "clean" cell may be water, a road or a village rather than a farm. Combined with row 1, that means someone could attest a cell that is a lake. Filtering by a land-cover product is roadmap. |
+| 11 | **Map imagery is third-party.** Tile requests reveal roughly which area is being browsed. | See *Privacy and security*. The exact plot is still never disclosed, and the search box does not call out at all. |
 | 5 | **The map is only as fresh as its source.** Hansen publishes annually, and v1.12 tops out at `lossyear` 24. | The effective detection window is 2021–2024; clearing from the last few months is not visible yet. Each release means republishing the root as a new grid version. |
 | 6 | **A single oracle publishes the root.** | One wallet could publish a false grid. Threshold attestors are roadmap. |
 | 7 | **The trusted setup has one contributor.** | Acceptable for a hackathon MVP, not for production. A multi-party ceremony must replace it. |

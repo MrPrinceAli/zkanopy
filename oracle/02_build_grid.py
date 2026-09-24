@@ -27,18 +27,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yaml
+
+from regions import add_region_arg, data_dir, load_config, out_dir
 
 HERE = Path(__file__).resolve().parent
-DATA_DIR = HERE / "data"
-OUT_DIR = HERE / "out"
+
 
 FIXED_POINT = 1_000_000
-
-
-def load_config(path: Path) -> dict:
-    with open(path) as f:
-        return yaml.safe_load(f)
 
 
 def fixed_point_grid(cfg: dict) -> dict:
@@ -165,11 +160,13 @@ def read_raster(path: Path, honour_nodata: bool = True) -> tuple[np.ndarray, obj
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--config", type=Path, default=HERE / "config.yaml")
+    add_region_arg(ap)
     ap.add_argument("--synthetic", action="store_true", help="skip rasters and generate a random grid")
     args = ap.parse_args()
 
-    cfg = load_config(args.config)
+    cfg = load_config(args.region)
+    DATA_DIR = data_dir(args.region)
+    OUT_DIR = out_dir(args.region)
     grid = fixed_point_grid(cfg)
     years = (int(cfg["years"]["baseline"]), int(cfg["years"]["current"]))
     loss_years = tuple(int(x) for x in cfg["hansen"]["loss_years"])

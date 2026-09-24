@@ -14,6 +14,48 @@ export const en = {
   "common.notFound": "Nothing grows here.",
   "nav.flow": "Flow",
   "footer.flow": "Flow — step by step",
+  "nav.field": "Field check",
+  "footer.field": "Field check — match a plot to its record",
+
+  // field verification (/field)
+  "field.eyebrow": "Field verification",
+  "field.h": "Is this the plot the record was made for?",
+  "field.lede":
+    "For an auditor standing on the plot. The farmer shows where it is; this page recomputes the plot's fingerprint and matches it against the attestation stored on the chain. Nothing is sent anywhere — the location is used on this device and then forgotten.",
+  "field.s1": "What you are checking",
+  "field.id": "Attestation number",
+  "field.idBad": "Must be a whole number greater than zero.",
+  "field.modeCoords": "I have coordinates",
+  "field.modeCell": "I already know the cell",
+  "field.lat": "Latitude",
+  "field.lon": "Longitude",
+  "field.row": "Row",
+  "field.col": "Column",
+  "field.check": "Check the plot",
+  "field.checking": "Reading the chain…",
+  "field.privacy":
+    "The coordinates stay in this browser. Only the attestation number is used to read public data from the chain, so nobody learns which plot you inspected.",
+  "field.s2": "Result for attestation #{id}",
+  "field.match":
+    "Match. Cell row {row}, column {col} in season {season} produces exactly the fingerprint stored in this attestation — this is the plot it was made for.",
+  "field.noMatch":
+    "No match. Cell row {row}, column {col} in season {season} does not produce the fingerprint stored in this attestation. Either this is a different plot, or the attestation belongs to someone else.",
+  "field.outside":
+    "This location lies outside grid {id} ({rows} × {cols} cells), so it cannot be the plot behind this attestation.",
+  "field.notFound": "No attestation number {id} exists on this chain.",
+  "field.cell": "Cell checked",
+  "field.cellOutside": "outside the grid",
+  "field.expected": "Fingerprint of this plot",
+  "field.stored": "Fingerprint in the attestation",
+  "field.season": "Season",
+  "field.commodity": "Commodity",
+  "field.exporter": "Exporter",
+  "field.recorded": "Recorded",
+  "field.grid": "Grid",
+  "field.gridV": "id {id}, version {v}, on {chain}",
+  "field.note": "A cell is about 100 m across, so a match places the plot to roughly one hectare — enough to stand on, and only known to you.",
+  "field.openVerify": "Open the public page for #{id} →",
+
 
   // flow (/flow) — the process in six steps, plain words
   "flow.eyebrow": "The flow · step by step",
@@ -236,6 +278,10 @@ export const en = {
     "Tap your plot on the map. Your browser looks up the cell, builds a zero-knowledge proof that the cell is clean in the published satellite grid, and only the proof — never the coordinates — goes on-chain.",
   "farmer.loading": "Loading the published grid (tree.json, ~3 MB)…",
   "farmer.loadError": "Could not load grid data: {msg}",
+  "farmer.search": "Search for a place",
+  "farmer.searchPlaceholder": "Search a region, country or crop…",
+  "farmer.pinHint": "Drop a pin on your plot anywhere in the world. {n} areas are published so far — outlined on the map — and the app finds the right one for you.",
+  "farmer.uncovered": "No published map covers that spot yet. Search or zoom to one of the outlined areas, or ask for your district to be added — the coordinates you just clicked were not sent anywhere.",
   "farmer.status": "Grid {name} v{v} · {rows}×{cols} cells · grid id {id} · published {date} · root",
   "farmer.verified": "matches on-chain root",
   "farmer.unverified": "on-chain check unavailable",

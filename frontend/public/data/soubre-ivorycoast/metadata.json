@@ -1,0 +1,78 @@
+{
+  "schema": "zkanopy-grid-metadata/v1",
+  "name": "soubre-ivorycoast-cocoa",
+  "description": "Cocoa smallholder belt around Soubré in south-west Côte d'Ivoire, the single largest cocoa-producing area in the world and the first landscape EUDR due diligence touches.",
+  "version": 1,
+  "generatedAt": "2026-09-24T01:39:49.893Z",
+  "aoi": {
+    "lat0": 5.7,
+    "lon0": -6.7,
+    "step_deg": 0.0009,
+    "cols": 200,
+    "rows": 200
+  },
+  "grid": {
+    "lat0S": 95700000,
+    "lon0S": 173300000,
+    "stepS": 900,
+    "cols": 200,
+    "rows": 200,
+    "depth": 16
+  },
+  "sources": {
+    "synthetic": false,
+    "hansen_asset": "UMD/hansen/global_forest_change_2024_v1_12",
+    "loss_years": [
+      21,
+      25
+    ],
+    "sentinel_collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "scale_m": 30,
+    "years": {
+      "baseline": 2020,
+      "current": 2025
+    }
+  },
+  "labeling": {
+    "hansen": "hansen_label = 0 if any pixel in the cell has lossyear within sources.loss_years, else 1",
+    "ai": {
+      "model": {
+        "type": "RandomForestClassifier",
+        "n_estimators": 300,
+        "min_samples_leaf": 2,
+        "class_weight": "balanced",
+        "n_jobs": -1,
+        "random_state": 42
+      },
+      "features": [
+        "ndvi_2020",
+        "ndvi_2025",
+        "dndvi"
+      ],
+      "metrics": {
+        "accuracy": 0.82775,
+        "f1_loss": 0.23444444444444446,
+        "f1_clean": 0.9029577464788733,
+        "f1_macro": 0.5687010954616589,
+        "precision_loss": 0.19500924214417745,
+        "recall_loss": 0.2938718662952646
+      },
+      "disagreement": {
+        "total": 2855,
+        "hansen_clean_ai_loss": 2348,
+        "hansen_loss_ai_clean": 507
+      }
+    },
+    "final": "final_label = 1 iff hansen_label == 1 and ai_label == 1",
+    "leaf": "Poseidon(row, col, final_label); zero leaf Poseidon(0, 0, 0)"
+  },
+  "tree": {
+    "file": "data/tree.json",
+    "sha256": "c0c487757890000a747aa956b38c4f39265fadd132a738909b8b16184316adbd",
+    "root": "4048358422266723980794018042874136659452377085943859770093607413024479820506",
+    "rootHex": "0x08f34a2799c03d0ef3fdfc98a3173e18009d304eda0993928604f94ff3a4bada",
+    "cells": 40000,
+    "clean": 34061,
+    "loss": 5939
+  }
+}

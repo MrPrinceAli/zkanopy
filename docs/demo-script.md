@@ -38,7 +38,7 @@ while speaking:
 
 Keep scrolling: *How it works* pins a phone mock-up whose screen follows the four steps as the text passes (the grid →
 your cell → proving → done); *Your secret* is a flip card — hover it to switch between what the chain sees and the
-network tab while a proof is made ("no request carries a latitude or a longitude"); *The two models* scrolls sideways
+network tab while a proof is made ("no request carries the plot's coordinates — the map tiles show which area you are looking at, never which cell you picked"); *The two models* scrolls sideways
 through the RandomForest radar and the IsolationForest ranking. Alternatively show `docs/architecture.png`. Point at
 the four parts:
 

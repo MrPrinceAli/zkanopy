@@ -1,0 +1,78 @@
+{
+  "schema": "zkanopy-grid-metadata/v1",
+  "name": "daklak-vietnam-coffee",
+  "description": "Robusta coffee smallholdings in the Central Highlands around Buôn Ma Thuôt, Đắk Lắk — Vietnam is the EU's largest robusta supplier and a priority EUDR origin.",
+  "version": 1,
+  "generatedAt": "2026-09-24T01:40:07.363Z",
+  "aoi": {
+    "lat0": 12.6,
+    "lon0": 107.95,
+    "step_deg": 0.0009,
+    "cols": 200,
+    "rows": 200
+  },
+  "grid": {
+    "lat0S": 102600000,
+    "lon0S": 287950000,
+    "stepS": 900,
+    "cols": 200,
+    "rows": 200,
+    "depth": 16
+  },
+  "sources": {
+    "synthetic": false,
+    "hansen_asset": "UMD/hansen/global_forest_change_2024_v1_12",
+    "loss_years": [
+      21,
+      25
+    ],
+    "sentinel_collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "scale_m": 30,
+    "years": {
+      "baseline": 2020,
+      "current": 2025
+    }
+  },
+  "labeling": {
+    "hansen": "hansen_label = 0 if any pixel in the cell has lossyear within sources.loss_years, else 1",
+    "ai": {
+      "model": {
+        "type": "RandomForestClassifier",
+        "n_estimators": 300,
+        "min_samples_leaf": 2,
+        "class_weight": "balanced",
+        "n_jobs": -1,
+        "random_state": 42
+      },
+      "features": [
+        "ndvi_2020",
+        "ndvi_2025",
+        "dndvi"
+      ],
+      "metrics": {
+        "accuracy": 0.89775,
+        "f1_loss": 0.2509157509157509,
+        "f1_clean": 0.9451301314730346,
+        "f1_macro": 0.5980229411943927,
+        "precision_loss": 0.20539730134932535,
+        "recall_loss": 0.32235294117647056
+      },
+      "disagreement": {
+        "total": 1873,
+        "hansen_clean_ai_loss": 1585,
+        "hansen_loss_ai_clean": 288
+      }
+    },
+    "final": "final_label = 1 iff hansen_label == 1 and ai_label == 1",
+    "leaf": "Poseidon(row, col, final_label); zero leaf Poseidon(0, 0, 0)"
+  },
+  "tree": {
+    "file": "data/tree.json",
+    "sha256": "f3ce4198f6b5bae1f63c6faae0e78d411733a18bbcfa9ec1fd9515f5e4d1d769",
+    "root": "4738079941751722526776492578294953443569017792864935585579817233820969878563",
+    "rootHex": "0x0a79a8809fbaa7c479b3c2ddeda913539100e74705e79944c701d337e7244423",
+    "cells": 40000,
+    "clean": 36291,
+    "loss": 3709
+  }
+}

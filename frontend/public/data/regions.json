@@ -1,0 +1,107 @@
+{
+  "schema": "zkanopy-regions/v1",
+  "default": "gayo-aceh",
+  "generatedAt": "2026-09-24T01:40:32.694Z",
+  "regions": [
+    {
+      "slug": "novoprogresso-brazil",
+      "name": "novoprogresso-brazil-soy",
+      "label": "Novo Progresso, Pará",
+      "country": "Brazil",
+      "commodity": "soy",
+      "gridId": 5,
+      "version": 1,
+      "cells": 40000,
+      "bounds": [
+        [
+          -7.150000000000006,
+          -55.5
+        ],
+        [
+          -6.970000000000006,
+          -55.32
+        ]
+      ]
+    },
+    {
+      "slug": "soubre-ivorycoast",
+      "name": "soubre-ivorycoast-cocoa",
+      "label": "Soubré, Nawa",
+      "country": "Côte d'Ivoire",
+      "commodity": "cocoa",
+      "gridId": 3,
+      "version": 1,
+      "cells": 40000,
+      "bounds": [
+        [
+          5.700000000000003,
+          -6.699999999999989
+        ],
+        [
+          5.880000000000003,
+          -6.519999999999989
+        ]
+      ]
+    },
+    {
+      "slug": "juaboso-ghana",
+      "name": "juaboso-ghana-cocoa",
+      "label": "Juaboso, Western North",
+      "country": "Ghana",
+      "commodity": "cocoa",
+      "gridId": 2,
+      "version": 1,
+      "cells": 40000,
+      "bounds": [
+        [
+          6.200000000000003,
+          -3.0999999999999943
+        ],
+        [
+          6.380000000000003,
+          -2.919999999999994
+        ]
+      ]
+    },
+    {
+      "slug": "gayo-aceh",
+      "name": "gayo-aceh-coffee",
+      "label": "Gayo highlands, Aceh",
+      "country": "Indonesia",
+      "commodity": "coffee",
+      "gridId": 1,
+      "version": 1,
+      "cells": 40000,
+      "bounds": [
+        [
+          4.549999999999997,
+          96.75
+        ],
+        [
+          4.729999999999997,
+          96.93
+        ]
+      ]
+    },
+    {
+      "slug": "daklak-vietnam",
+      "name": "daklak-vietnam-coffee",
+      "label": "Đắk Lắk, Central Highlands",
+      "country": "Vietnam",
+      "commodity": "coffee",
+      "gridId": 4,
+      "version": 1,
+      "cells": 40000,
+      "bounds": [
+        [
+          12.599999999999994,
+          107.94999999999999
+        ],
+        [
+          12.779999999999994,
+          108.13
+        ]
+      ]
+    }
+  ]
+}

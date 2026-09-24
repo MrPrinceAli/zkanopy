@@ -1,0 +1,78 @@
+{
+  "schema": "zkanopy-grid-metadata/v1",
+  "name": "juaboso-ghana-cocoa",
+  "description": "Cocoa smallholder landscape around Juaboso in Ghana's Western North region, on the edge of the Bia forest reserves — the emblematic EUDR cocoa case, and a different biome from the Aceh grid.",
+  "version": 1,
+  "generatedAt": "2026-09-23T11:33:44.327Z",
+  "aoi": {
+    "lat0": 6.2,
+    "lon0": -3.1,
+    "step_deg": 0.0009,
+    "cols": 200,
+    "rows": 200
+  },
+  "grid": {
+    "lat0S": 96200000,
+    "lon0S": 176900000,
+    "stepS": 900,
+    "cols": 200,
+    "rows": 200,
+    "depth": 16
+  },
+  "sources": {
+    "synthetic": false,
+    "hansen_asset": "UMD/hansen/global_forest_change_2024_v1_12",
+    "loss_years": [
+      21,
+      25
+    ],
+    "sentinel_collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "scale_m": 30,
+    "years": {
+      "baseline": 2020,
+      "current": 2025
+    }
+  },
+  "labeling": {
+    "hansen": "hansen_label = 0 if any pixel in the cell has lossyear within sources.loss_years, else 1",
+    "ai": {
+      "model": {
+        "type": "RandomForestClassifier",
+        "n_estimators": 300,
+        "min_samples_leaf": 2,
+        "class_weight": "balanced",
+        "n_jobs": -1,
+        "random_state": 42
+      },
+      "features": [
+        "ndvi_2020",
+        "ndvi_2025",
+        "dndvi"
+      ],
+      "metrics": {
+        "accuracy": 0.83025,
+        "f1_loss": 0.21502890173410405,
+        "f1_clean": 0.9048353188507358,
+        "f1_macro": 0.55993211029242,
+        "precision_loss": 0.1884498480243161,
+        "recall_loss": 0.2503364737550471
+      },
+      "disagreement": {
+        "total": 2699,
+        "hansen_clean_ai_loss": 2142,
+        "hansen_loss_ai_clean": 557
+      }
+    },
+    "final": "final_label = 1 iff hansen_label == 1 and ai_label == 1",
+    "leaf": "Poseidon(row, col, final_label); zero leaf Poseidon(0, 0, 0)"
+  },
+  "tree": {
+    "file": "data/tree.json",
+    "sha256": "667f93dfdd24ff9b0cd0a60ab900e22566fab38bf607b2325edb36e550e48bcd",
+    "root": "7710568082344173592751241438862396429491760729264717095355326655096777388878",
+    "rootHex": "0x110c06e190313bccd4155434068566141a62795d3712fe551012ccee9988b34e",
+    "cells": 40000,
+    "clean": 34143,
+    "loss": 5857
+  }
+}

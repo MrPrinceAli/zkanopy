@@ -35,8 +35,10 @@ async function fetchJson<T>(url: string): Promise<T> {
   return (await r.json()) as T;
 }
 
-export const loadLabels = () => fetchJson<LabelsFile>("/data/labels.json");
-export const loadMetadata = () => fetchJson<GridMetadata>("/data/metadata.json");
+import { FALLBACK_REGION } from "./regions";
+
+export const loadLabels = (slug: string = FALLBACK_REGION) => fetchJson<LabelsFile>(`/data/${slug}/labels.json`);
+export const loadMetadata = (slug: string = FALLBACK_REGION) => fetchJson<GridMetadata>(`/data/${slug}/metadata.json`);
 
 export interface FeedItem {
   id: bigint;

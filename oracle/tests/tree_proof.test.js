@@ -1,6 +1,6 @@
-// Integration test: the published tree (frontend/public/data/tree.json) and the Phase 1 circuit agree.
-// Rebuilds the tree from the leaves, checks the root against tree.json / grid.json, then produces and
-// verifies a real Groth16 proof for a clean cell. Skipped when the data or the build artifacts are absent.
+// Integration test: every published tree (frontend/public/data/<region>/tree.json) and the Phase 1 circuit
+// agree. Rebuilds each tree from its leaves, checks the root against tree.json / grid.json, then produces
+// and verifies a real Groth16 proof for a clean cell. Skipped when data or build artifacts are absent.
 
 const assert = require("node:assert/strict");
 const fs = require("fs");
@@ -9,18 +9,30 @@ const snarkjs = require("snarkjs");
 const { getPoseidon, makeHasher, buildTree, getPath } = require("../../packages/merkle");
 
 const ROOT = path.join(__dirname, "..", "..");
-const TREE = path.join(ROOT, "frontend", "public", "data", "tree.json");
-const GRID = path.join(ROOT, "frontend", "public", "data", "grid.json");
+const DATA = path.join(ROOT, "frontend", "public", "data");
 const WASM = path.join(ROOT, "circuits", "build", "deforestation_free.wasm");
 const ZKEY = path.join(ROOT, "circuits", "build", "deforestation_free_final.zkey");
 const VKEY = path.join(ROOT, "circuits", "build", "verification_key.json");
 
-describe("published tree.json x circuit", function () {
+/** Every region that has a published tree, from the manifest when present. */
+function publishedRegions() {
+  const manifest = path.join(DATA, "regions.json");
+  const slugs = fs.existsSync(manifest)
+    ? JSON.parse(fs.readFileSync(manifest, "utf8")).regions.map((r) => r.slug)
+    : fs.existsSync(DATA)
+      ? fs.readdirSync(DATA, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+      : [];
+  return slugs.filter((slug) => fs.existsSync(path.join(DATA, slug, "tree.json")));
+}
+
+for (const REGION of publishedRegions()) describe(`published tree.json x circuit — ${REGION}`, function () {
+  const TREE = path.join(DATA, REGION, "tree.json");
+  const GRID = path.join(DATA, REGION, "grid.json");
   let tree, hash, built;
 
   before(async function () {
-    if (![TREE, WASM, ZKEY, VKEY].every(fs.existsSync)) {
-      console.log("      (skipped: needs frontend/public/data/tree.json and circuits/build.sh artifacts)");
+    if (![WASM, ZKEY, VKEY].every(fs.existsSync)) {
+      console.log("      (skipped: needs circuits/build.sh artifacts)");
       this.skip();
     }
     tree = JSON.parse(fs.readFileSync(TREE, "utf8"));

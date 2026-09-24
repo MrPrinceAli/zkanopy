@@ -57,8 +57,11 @@ export interface CellHit {
   inside: boolean;
 }
 
+/** The grid fields `cellOf` needs. The on-chain Grid struct has these but no `depth`, so it fits too. */
+export type CellGrid = Pick<GridParams, "lat0S" | "lon0S" | "stepS" | "cols" | "rows">;
+
 /** Which cell a WGS84 point falls into. `inside` is false when the point is outside the grid. */
-export function cellOf(lat: number, lon: number, g: GridParams): CellHit {
+export function cellOf(lat: number, lon: number, g: CellGrid): CellHit {
   const latS = toFixed(lat, 90);
   const lonS = toFixed(lon, 180);
   const row = Math.floor((latS - g.lat0S) / g.stepS);
@@ -75,6 +78,14 @@ export function gridBounds(g: GridParams): [[number, number], [number, number]] 
 }
 
 export const isClean = (tree: TreeFile, index: number): boolean => tree.labels[index] === "1";
+
+/**
+ * Nullifier of a cell in a season — `Poseidon(row, col, season)`, the same three inputs and order the
+ * circuit uses (deforestation_free.circom step 4). An auditor standing on a plot can recompute this and
+ * match it against the nullifier stored in an attestation, which is what `/field` does.
+ */
+export const nullifierOf = (row: number, col: number, season: number): bigint =>
+  hash3(BigInt(row), BigInt(col), BigInt(season));
 
 /** zero[i] = root of an empty subtree of height i. */
 export function zeroNodes(zeroLeaf: bigint, depth: number): bigint[] {

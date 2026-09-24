@@ -1,0 +1,78 @@
+{
+  "schema": "zkanopy-grid-metadata/v1",
+  "name": "novoprogresso-brazil-soy",
+  "description": "Amazon frontier around Novo Progresso, Pará — soy and cattle expansion along the BR-163, a southern-hemisphere test of the same pipeline.",
+  "version": 1,
+  "generatedAt": "2026-09-24T01:40:24.526Z",
+  "aoi": {
+    "lat0": -7.15,
+    "lon0": -55.5,
+    "step_deg": 0.0009,
+    "cols": 200,
+    "rows": 200
+  },
+  "grid": {
+    "lat0S": 82850000,
+    "lon0S": 124500000,
+    "stepS": 900,
+    "cols": 200,
+    "rows": 200,
+    "depth": 16
+  },
+  "sources": {
+    "synthetic": false,
+    "hansen_asset": "UMD/hansen/global_forest_change_2024_v1_12",
+    "loss_years": [
+      21,
+      25
+    ],
+    "sentinel_collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "scale_m": 30,
+    "years": {
+      "baseline": 2020,
+      "current": 2025
+    }
+  },
+  "labeling": {
+    "hansen": "hansen_label = 0 if any pixel in the cell has lossyear within sources.loss_years, else 1",
+    "ai": {
+      "model": {
+        "type": "RandomForestClassifier",
+        "n_estimators": 300,
+        "min_samples_leaf": 2,
+        "class_weight": "balanced",
+        "n_jobs": -1,
+        "random_state": 42
+      },
+      "features": [
+        "ndvi_2020",
+        "ndvi_2025",
+        "dndvi"
+      ],
+      "metrics": {
+        "accuracy": 0.803625,
+        "f1_loss": 0.5685251304586652,
+        "f1_clean": 0.872886155837851,
+        "f1_macro": 0.7207056431482581,
+        "precision_loss": 0.48637218045112784,
+        "recall_loss": 0.6840713813615333
+      },
+      "disagreement": {
+        "total": 3841,
+        "hansen_clean_ai_loss": 3363,
+        "hansen_loss_ai_clean": 478
+      }
+    },
+    "final": "final_label = 1 iff hansen_label == 1 and ai_label == 1",
+    "leaf": "Poseidon(row, col, final_label); zero leaf Poseidon(0, 0, 0)"
+  },
+  "tree": {
+    "file": "data/tree.json",
+    "sha256": "f207b4937aafe35f260b6291ca620fb6e683caa575812f409cca40cae0b2e25a",
+    "root": "15348354000482208497154355844910081617131954461776471230666450865669392713259",
+    "rootHex": "0x21eedc4a9d7b73a939605ab26007f35fe828495848115fea162672b3367a462b",
+    "cells": 40000,
+    "clean": 29073,
+    "loss": 10927
+  }
+}

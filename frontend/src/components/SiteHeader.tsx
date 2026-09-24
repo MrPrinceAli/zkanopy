@@ -41,6 +41,7 @@ export default function SiteHeader() {
     { to: "/exporter", label: t("nav.exporter") },
     { to: "/regulator", label: t("nav.regulator") },
     { to: "/flow", label: t("nav.flow") },
+    { to: "/field", label: t("nav.field") },
   ];
 
   return (

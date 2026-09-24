@@ -27,4 +27,5 @@ def ai_qc():
 
 @pytest.fixture(scope="session")
 def config(build_grid):
-    return build_grid.load_config(ORACLE / "config.yaml")
+    # Each region has its own config since Phase 7; the Aceh grid is the published default.
+    return build_grid.load_config(ORACLE / "regions" / "gayo-aceh.yaml")

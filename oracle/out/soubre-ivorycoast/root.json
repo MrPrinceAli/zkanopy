@@ -1,0 +1,17 @@
+{
+  "lat0S": 95700000,
+  "lon0S": 173300000,
+  "stepS": 900,
+  "cols": 200,
+  "rows": 200,
+  "depth": 16,
+  "name": "soubre-ivorycoast-cocoa",
+  "version": 1,
+  "root": "4048358422266723980794018042874136659452377085943859770093607413024479820506",
+  "rootHex": "0x08f34a2799c03d0ef3fdfc98a3173e18009d304eda0993928604f94ff3a4bada",
+  "clean": 34061,
+  "loss": 5939,
+  "treeSha256": "c0c487757890000a747aa956b38c4f39265fadd132a738909b8b16184316adbd",
+  "metadataSha256": "e3b0aca99df7fc244ed9422a7cf13f394f2808fa824516d291f2bd39e7fe6c94",
+  "generatedAt": "2026-09-24T01:39:49.893Z"
+}

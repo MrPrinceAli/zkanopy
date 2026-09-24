@@ -7,6 +7,7 @@ import { addressUrl, decodeContractError, shortHex, txUrl } from "../lib/contrac
 import { commodityFromHash, fetchAttestation, fetchGrid, fetchTxHash, formatTime, toHex32, type AttestationRecord, type GridRecordOnchain } from "../lib/registry";
 import { CHAIN_NAME, EXPLORER_URL, REGISTRY_ADDRESS } from "../config";
 import { useI18n, type Key } from "../i18n";
+import { loadRegions } from "../lib/regions";
 import { Layers, ShieldCheck } from "lucide-react";
 
 type State =
@@ -19,6 +20,14 @@ export default function Verify() {
   const { id } = useParams();
   const publicClient = usePublicClient();
   const [state, setState] = useState<State>({ status: "loading" });
+  // gridId -> region slug, so the metadata link points at the grid this attestation actually used.
+  const [slugByGrid, setSlugByGrid] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadRegions()
+      .then((f) => setSlugByGrid(Object.fromEntries(f.regions.map((r) => [String(r.gridId), r.slug]))))
+      .catch(() => setSlugByGrid({}));
+  }, []);
 
   useEffect(() => {
     if (!publicClient) return;
@@ -117,10 +126,14 @@ export default function Verify() {
           <dt>{t("verify.metadata")}</dt>
           <dd>
             <span className="mono">{grid.metadataURI}</span>
-            {metaIsHash && (
+            {metaIsHash && slugByGrid[grid.gridId.toString()] && (
               <>
                 {" "}
-                — <a href="/data/metadata.json" target="_blank" rel="noreferrer">metadata.json</a> {t("verify.metaNote")}
+                —{" "}
+                <a href={`/data/${slugByGrid[grid.gridId.toString()]}/metadata.json`} target="_blank" rel="noreferrer">
+                  metadata.json
+                </a>{" "}
+                {t("verify.metaNote")}
               </>
             )}
           </dd>

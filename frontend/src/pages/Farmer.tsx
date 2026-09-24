@@ -4,6 +4,7 @@ import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { decodeEventLog, isAddress, type Address } from "viem";
 import AoiMap from "../components/AoiMap";
 import { loadGridData, type GridData } from "../lib/data";
+import { FALLBACK_REGION, loadRegions, type RegionInfo } from "../lib/regions";
 import { cellOf, checkpointRoot, getPath, isClean, type CellHit } from "../lib/merkle";
 import { generateProof, proofFileContents, type ProofResult } from "../lib/prover";
 import {
@@ -19,7 +20,7 @@ import {
 } from "../lib/contract";
 import { REGISTRY_ADDRESS } from "../config";
 import { useI18n, type Key } from "../i18n";
-import { Cpu, FileSignature, Lock, MapPin, Send } from "lucide-react";
+import { Cpu, FileSignature, Lock, MapPin, Search, Send } from "lucide-react";
 
 type DataState =
   | { status: "loading" }
@@ -51,6 +52,47 @@ export default function Farmer() {
   const [proof, setProof] = useState<ProofResult | null>(null);
   const [proveError, setProveError] = useState<string | null>(null);
   const [submit, setSubmit] = useState<SubmitState>({ status: "idle" });
+  // Which published region the farmer is working in. The manifest may list many; a checkout without
+  // regions.json still gets the first grid through FALLBACK_REGION.
+  const [regions, setRegions] = useState<RegionInfo[] | null>(null);
+  const [region, setRegion] = useState<string>(FALLBACK_REGION);
+  const [query, setQuery] = useState("");
+  const [focus, setFocus] = useState<[[number, number], [number, number]] | null>(null);
+  // Set when the farmer drops a pin outside every published grid.
+  const [uncovered, setUncovered] = useState(false);
+
+  useEffect(() => {
+    loadRegions()
+      .then((f) => {
+        setRegions(f.regions);
+        setRegion((cur) => (f.regions.some((r) => r.slug === cur) ? cur : f.default || f.regions[0].slug));
+      })
+      .catch(() => setRegions(null));
+  }, []);
+
+  /** The published region whose grid contains this point, if any. */
+  const regionAt = (lat: number, lon: number): RegionInfo | undefined =>
+    (regions ?? []).find(
+      (r) => lat >= r.bounds[0][0] && lat <= r.bounds[1][0] && lon >= r.bounds[0][1] && lon <= r.bounds[1][1],
+    );
+
+  /** Pin anywhere: the app finds the region itself, so the farmer never has to know what a grid is. */
+  function pick(lat: number, lon: number) {
+    const hit = regionAt(lat, lon);
+    setUncovered(!hit);
+    if (!hit) return;
+    setPoint({ lat, lon });
+    if (hit.slug !== region) setRegion(hit.slug); // loads that grid; the effect resets proof state
+  }
+
+  /** Local search over the published regions — no request leaves the device. */
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q || !regions) return [];
+    return regions
+      .filter((r) => [r.label, r.country, r.commodity, r.name].some((f) => f.toLowerCase().includes(q)))
+      .slice(0, 6);
+  }, [query, regions]);
 
   const lossMessage = t("farmer.lossMsg");
   const errorText = (d: DecodedError) => (isKnownError(d.name) ? t(`errors.${d.name}` as Key) : d.message);
@@ -58,9 +100,12 @@ export default function Farmer() {
   // Load tree.json / checkpoint.json / grid.json once, then verify the checkpoint against the on-chain root.
   useEffect(() => {
     let cancelled = false;
+    setData({ status: "loading" });
+    setProof(null);
+    setSubmit({ status: "idle" });
     (async () => {
       try {
-        const d = await loadGridData();
+        const d = await loadGridData(region);
         const cpRoot = checkpointRoot(d.checkpoint, BigInt(d.tree.zeroLeaf));
         if (cpRoot.toString() !== d.tree.root) throw new Error("checkpoint.json does not match tree.json");
         let onchainRoot: bigint | null = null;
@@ -85,7 +130,7 @@ export default function Farmer() {
     return () => {
       cancelled = true;
     };
-  }, [publicClient]);
+  }, [publicClient, region]);
 
   // Default the exporter to the connected wallet (demo: one wallet plays both roles).
   useEffect(() => {
@@ -208,16 +253,57 @@ export default function Farmer() {
         <DataStatus state={data} />
       </header>
 
+      <section className="panel tight">
+        <div className="map-search">
+          <Search size={14} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("farmer.searchPlaceholder")}
+            aria-label={t("farmer.search")}
+            spellCheck={false}
+          />
+          {matches.length > 0 && (
+            <ul className="map-search-results">
+              {matches.map((r) => (
+                <li key={r.slug}>
+                  <button
+                    onClick={() => {
+                      setFocus(r.bounds);
+                      setQuery("");
+                    }}
+                  >
+                    <strong>{r.label}</strong>
+                    <span className="muted">
+                      {r.country} · {r.commodity}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <AoiMap
+          tree={data.status === "ready" ? data.data.tree : null}
+          regions={regions ?? []}
+          point={point}
+          showLoss={showLoss}
+          onPick={pick}
+          focus={focus}
+        />
+        <label className="check">
+          <input type="checkbox" checked={showLoss} onChange={(e) => setShowLoss(e.target.checked)} />
+          {t("farmer.overlay")}
+        </label>
+        {uncovered ? (
+          <p className="alert bad">{t("farmer.uncovered")}</p>
+        ) : (
+          <p className="hint">{t("farmer.pinHint", { n: regions?.length ?? 0 })}</p>
+        )}
+      </section>
+
       {data.status === "ready" && (
         <>
-          <section className="panel tight">
-            <AoiMap tree={data.data.tree} point={point} showLoss={showLoss} onPick={(lat, lon) => setPoint({ lat, lon })} />
-            <label className="check">
-              <input type="checkbox" checked={showLoss} onChange={(e) => setShowLoss(e.target.checked)} />
-              {t("farmer.overlay")}
-            </label>
-          </section>
-
           <section className="panel">
             <div className="panel-head">
               <span className="panel-num">01</span>

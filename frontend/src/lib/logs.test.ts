@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { chunkRanges, estimateBlock, fetchRangeAdaptive, windowAround, type AttestedLog } from "./logs";
+import { MAX_RANGE, chunkRanges, estimateBlock, fetchRangeAdaptive, windowAround, type AttestedLog } from "./logs";
 import { BLOCK_ANCHOR, REGISTRY_DEPLOY_BLOCK } from "../config";
 
 describe("chunkRanges / block estimation", () => {
-  it("tiles a range into <= 9000-block chunks without gaps", () => {
+  it("tiles a range into <= MAX_RANGE chunks without gaps", () => {
     const chunks = chunkRanges(100n, 20_000n);
-    expect(chunks[0]).toEqual([100n, 9_099n]);
+    expect(chunks[0]).toEqual([100n, 100n + MAX_RANGE - 1n]);
+    for (const [a, b] of chunks) expect(b - a + 1n <= MAX_RANGE).toBe(true);
     expect(chunks[chunks.length - 1][1]).toBe(20_000n);
     for (let i = 1; i < chunks.length; i++) expect(chunks[i][0]).toBe(chunks[i - 1][1] + 1n);
     expect(chunkRanges(5n, 5n)).toEqual([[5n, 5n]]);

@@ -16,8 +16,8 @@ import {
 } from "./merkle";
 
 const readJson = <T>(rel: string): T => JSON.parse(readFileSync(new URL(rel, import.meta.url), "utf8")) as T;
-const tree = readJson<TreeFile>("../../public/data/tree.json");
-const checkpoint = readJson<CheckpointFile>("../../public/data/checkpoint.json");
+const tree = readJson<TreeFile>("../../public/data/gayo-aceh/tree.json");
+const checkpoint = readJson<CheckpointFile>("../../public/data/gayo-aceh/checkpoint.json");
 
 describe("poseidon-lite matches the circomlibjs-built data", () => {
   it("zero leaf = Poseidon(0,0,0) and leaves = Poseidon(row, col, label)", () => {

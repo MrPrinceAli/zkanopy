@@ -9,7 +9,7 @@ on an 80/20 split and then scores every cell:
   final_label   1 only if hansen_label == 1 AND ai_label == 1 (conservative; this is what enters the Merkle tree)
 
 Outputs: oracle/out/cells_final.csv, review_queue.csv, ai_report.md, ai_summary.json.
-Usage: .venv/bin/python oracle/03_ai_qc.py [--config oracle/config.yaml]
+Usage: .venv/bin/python oracle/03_ai_qc.py [--region <slug>]
 """
 
 from __future__ import annotations
@@ -22,13 +22,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yaml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 
+from regions import add_region_arg, load_config, out_dir
+
 HERE = Path(__file__).resolve().parent
-OUT_DIR = HERE / "out"
 
 MODEL_PARAMS = {"n_estimators": 300, "min_samples_leaf": 2, "class_weight": "balanced", "n_jobs": -1}
 
@@ -167,12 +167,12 @@ def write_report(report: dict, path: Path, grid_name: str) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--config", type=Path, default=HERE / "config.yaml")
+    add_region_arg(ap)
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
 
-    with open(args.config) as f:
-        cfg = yaml.safe_load(f)
+    cfg = load_config(args.region)
+    OUT_DIR = out_dir(args.region)
     years = (int(cfg["years"]["baseline"]), int(cfg["years"]["current"]))
     features = [f"ndvi_{years[0]}", f"ndvi_{years[1]}", "dndvi"]
 

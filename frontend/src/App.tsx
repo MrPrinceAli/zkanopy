@@ -9,6 +9,7 @@ import Exporter from "./pages/Exporter";
 import Verify from "./pages/Verify";
 import Regulator from "./pages/Regulator";
 import Flow from "./pages/Flow";
+import Field from "./pages/Field";
 import { useI18n } from "./i18n";
 
 /** Panels get a border glow that follows the pointer (--mx/--my consumed by .panel::before). */
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/verify/:id" element={<Verify />} />
             <Route path="/regulator" element={<Regulator />} />
             <Route path="/flow" element={<Flow />} />
+            <Route path="/field" element={<Field />} />
             <Route
               path="*"
               element={

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Step 01 - export the AOI rasters from Google Earth Engine to oracle/data/ (PRD 5.5).
 
-Outputs (GeoTIFF, EPSG:4326, `sentinel.scale_m` metres):
+Outputs land in oracle/data/<region>/ (GeoTIFF, EPSG:4326, `sentinel.scale_m` metres):
   hansen_lossyear.tif    Hansen GFC `lossyear` band (0 = no loss, N = loss in year 2000+N)
   ndvi_<baseline>.tif    Sentinel-2 SR annual median NDVI, cloud/shadow masked (SCL + QA60)
   ndvi_<current>.tif
 
 Prerequisites: `earthengine authenticate` once and GEE_PROJECT in .env (see README).
-Usage: .venv/bin/python oracle/01_export_gee.py [--config oracle/config.yaml] [--force]
+Usage: .venv/bin/python oracle/01_export_gee.py [--region <slug>] [--force]
 """
 
 from __future__ import annotations
@@ -20,17 +20,11 @@ from pathlib import Path
 
 import ee
 import requests
-import yaml
 from dotenv import load_dotenv
 
+from regions import ROOT, add_region_arg, data_dir, load_config  # noqa: E402
+
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
-DATA_DIR = HERE / "data"
-
-
-def load_config(path: Path) -> dict:
-    with open(path) as f:
-        return yaml.safe_load(f)
 
 
 def aoi_bbox(cfg: dict) -> list[float]:
@@ -71,7 +65,7 @@ def download(image: ee.Image, region: ee.Geometry, scale: int, out: Path) -> int
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--config", type=Path, default=HERE / "config.yaml")
+    add_region_arg(ap)
     ap.add_argument("--force", action="store_true", help="re-download rasters that already exist")
     args = ap.parse_args()
 
@@ -81,7 +75,8 @@ def main() -> int:
         print("error: GEE_PROJECT is not set in .env", file=sys.stderr)
         return 1
 
-    cfg = load_config(args.config)
+    cfg = load_config(args.region)
+    DATA_DIR = data_dir(args.region)
     ee.Initialize(project=project)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 

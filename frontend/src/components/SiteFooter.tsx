@@ -42,6 +42,9 @@ export default function SiteFooter() {
               <Link to="/flow">{t("footer.flow")}</Link>
             </li>
             <li>
+              <Link to="/field">{t("footer.field")}</Link>
+            </li>
+            <li>
               <a href={REPO} target="_blank" rel="noreferrer">
                 {t("footer.p1")}
               </a>

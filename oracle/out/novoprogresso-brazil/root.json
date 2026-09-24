@@ -1,0 +1,17 @@
+{
+  "lat0S": 82850000,
+  "lon0S": 124500000,
+  "stepS": 900,
+  "cols": 200,
+  "rows": 200,
+  "depth": 16,
+  "name": "novoprogresso-brazil-soy",
+  "version": 1,
+  "root": "15348354000482208497154355844910081617131954461776471230666450865669392713259",
+  "rootHex": "0x21eedc4a9d7b73a939605ab26007f35fe828495848115fea162672b3367a462b",
+  "clean": 29073,
+  "loss": 10927,
+  "treeSha256": "f207b4937aafe35f260b6291ca620fb6e683caa575812f409cca40cae0b2e25a",
+  "metadataSha256": "a4add0a3712143806dffb3ccc4aea8cc6bfb43bc9e21ee2130034b92e672db79",
+  "generatedAt": "2026-09-24T01:40:24.526Z"
+}

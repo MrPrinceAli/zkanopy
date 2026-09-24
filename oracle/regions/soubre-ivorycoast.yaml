@@ -1,0 +1,39 @@
+# ZKanopy oracle configuration (PRD 5.5). One AOI = one grid = one Merkle root.
+# One file per region in this folder; the file name is the region slug passed as --region.
+
+name: soubre-ivorycoast-cocoa
+label: Soubré, Nawa
+country: Côte d'Ivoire
+commodity: cocoa
+description: >
+  Cocoa smallholder belt around Soubré in south-west Côte d'Ivoire, the single largest
+  cocoa-producing area in the world and the first landscape EUDR due diligence touches.
+grid_version: 1
+
+aoi:
+  # Bottom-left corner of the grid, in degrees (WGS84). Negative = south / west.
+  lat0: 5.70
+  lon0: -6.70
+  # Cell size in degrees. 0.0009 deg = stepS 900 in the 1e6 fixed-point encoding (~100 m at the equator).
+  step_deg: 0.0009
+  # Same shape as every other grid: 200 x 200 cells = 40 000 leaves (depth 16 holds 65 536).
+  cols: 200
+  rows: 200
+
+years:
+  baseline: 2020 # EUDR cut-off year (31 Dec 2020)
+  current: 2025
+
+hansen:
+  asset: UMD/hansen/global_forest_change_2024_v1_12
+  loss_years: [21, 25]
+
+sentinel:
+  collection: COPERNICUS/S2_SR_HARMONIZED
+  scale_m: 30
+  max_cloud_pct: 80
+
+merkle:
+  depth: 16
+
+metadata_uri: ""
