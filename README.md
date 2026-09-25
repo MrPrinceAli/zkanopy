@@ -10,6 +10,14 @@
 
 **Prove your farm is deforestation-free — without revealing where it is.**
 
+**Background.** The EU Deforestation Regulation (EUDR, Regulation (EU) 2023/1115) bans cattle, cocoa, coffee, oil
+palm, rubber, soya and wood products from the EU market unless they are *deforestation-free*: grown on land that has
+not been deforested after **31 December 2020**. To prove it, every operator must file a Due Diligence Statement that
+includes the **geolocation of every plot** the commodity came from, and a satellite check against that cut-off. The
+rules apply from 30 December 2026 for large and medium companies and from 30 June 2027 for micro and small ones
+(Regulation (EU) 2025/2650). For the millions of smallholders behind Indonesian coffee and palm oil or West African
+cocoa, this means handing the exact coordinates of their land to everyone up the chain — or losing the EU market.
+
 A smallholder farmer proves cryptographically that their plot has **not been deforested after 31 December 2020** (the
 EUDR cut-off) **without disclosing its coordinates**. The proof is verified on-chain, recorded as an attestation with a
 nullifier (no double-selling), and exporters compile attestations into a Due Diligence Statement (DDS).
