@@ -9,6 +9,6 @@ scikit-learn==1.9.1
 geopandas==1.1.4
 pyyaml==6.0.3
 requests==2.34.2
-python-dotenv>=1.0
+python-dotenv>=1.2.4
 # tests
 pytest>=8
