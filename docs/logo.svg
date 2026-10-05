@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="ZKanopy logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f2a1d"/><stop offset="1" stop-color="#06140d"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#2fbf71"/><stop offset="1" stop-color="#a7f3b5"/>
+    </linearGradient>
+    <clipPath id="leafClip"><path d="M64 18C40 30 28 52 30 78c2 18 16 30 34 32 18-2 32-14 34-32 2-26-10-48-34-60z"/></clipPath>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M64 18C40 30 28 52 30 78c2 18 16 30 34 32 18-2 32-14 34-32 2-26-10-48-34-60z" fill="url(#leaf)"/>
+  <g clip-path="url(#leafClip)" stroke="#0f2a1d" stroke-opacity=".35" stroke-width="1.5">
+    <path d="M20 46h88M20 62h88M20 78h88M20 94h88M40 10v110M56 10v110M72 10v110M88 10v110"/>
+  </g>
+  <rect x="56" y="62" width="16" height="16" fill="#f5b942"/>
+  <path d="M64 30v80" stroke="#0f2a1d" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="100" cy="100" r="16" fill="#06140d" stroke="#a7f3b5" stroke-width="3"/>
+  <path d="M93 100l5 5 9-10" fill="none" stroke="#a7f3b5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
