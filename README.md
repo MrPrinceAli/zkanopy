@@ -1,14 +1,32 @@
+<div align="center">
+
+<img src="docs/logo.svg" alt="ZKanopy logo" width="120" />
+
 # ZKanopy
 
-[![License](https://img.shields.io/github/license/MrPrinceAli/zkanopy)](LICENSE)
+### Prove your farm is deforestation-free — without revealing where it is.
+
+Zero-knowledge EUDR compliance for smallholder farmers · Circom + Groth16 · Base Sepolia · real satellite data
+
+[![CI](https://github.com/MrPrinceAli/zkanopy/actions/workflows/ci.yml/badge.svg)](https://github.com/MrPrinceAli/zkanopy/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/MrPrinceAli/zkanopy?color=2fbf71)](LICENSE)
 [![IEEE ClimateChain 2026](https://img.shields.io/badge/IEEE_ClimateChain-2026-00629B?logo=ieee&logoColor=white)](docs/devpost.md)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-2fbf71)](CONTRIBUTING.md)
+[![Last commit](https://img.shields.io/github/last-commit/MrPrinceAli/zkanopy)](https://github.com/MrPrinceAli/zkanopy/commits/main)
+[![Stars](https://img.shields.io/github/stars/MrPrinceAli/zkanopy?style=flat&logo=github)](https://github.com/MrPrinceAli/zkanopy/stargazers)
+
 [![Base Sepolia](https://img.shields.io/badge/Base-Sepolia-0052FF?logo=coinbase&logoColor=white)](#deployed-on-base-sepolia)
 [![Circom](https://img.shields.io/badge/Circom-Groth16-000000)](circuits/)
-[![Foundry](https://img.shields.io/badge/Foundry-Solidity-000000)](contracts/)
-[![Vite](https://img.shields.io/badge/Vite-TypeScript-646CFF?logo=vite&logoColor=white)](frontend/)
+[![Solidity](https://img.shields.io/badge/Solidity-Foundry-363636?logo=solidity&logoColor=white)](contracts/)
+[![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black)](frontend/)
 [![Python](https://img.shields.io/badge/Python-oracle-3776AB?logo=python&logoColor=white)](oracle/)
+[![Earth Engine](https://img.shields.io/badge/Google-Earth_Engine-4285F4?logo=google&logoColor=white)](oracle/01_export_gee.py)
 
-**Prove your farm is deforestation-free — without revealing where it is.**
+[**How it works**](#what-zkanopy-does) · [**Architecture**](#architecture) · [**Screenshots**](#screenshots) · [**Reproduce**](#reproduce-it) · [**Limitations**](#known-limitations) · [**Roadmap**](#roadmap)
+
+</div>
+
+---
 
 **Background.** The EU Deforestation Regulation (EUDR, Regulation (EU) 2023/1115) bans cattle, cocoa, coffee, oil
 palm, rubber, soya and wood products from the EU market unless they are *deforestation-free*: grown on land that has
@@ -35,6 +53,26 @@ Built solo for the **IEEE ClimateChain Global Hackathon 2026 — Sustainable Sup
 | Design decisions log | [`docs/decisions.md`](docs/decisions.md) · full spec in [`PRD.md`](PRD.md) |
 
 ---
+
+<details>
+<summary><b>Table of contents</b></summary>
+
+- [The problem](#the-problem)
+- [What ZKanopy does](#what-zkanopy-does)
+- [Architecture](#architecture)
+- [How a proof works](#how-a-proof-works)
+- [The two AI components](#the-two-ai-components)
+- [Privacy and security](#privacy-and-security)
+- [Screenshots](#screenshots)
+- [Deployed on Base Sepolia](#deployed-on-base-sepolia)
+- [Reproduce it](#reproduce-it)
+- [Repository layout](#repository-layout)
+- [Compared with a centralised traceability platform](#compared-with-a-centralised-traceability-platform)
+- [Known limitations](#known-limitations)
+- [Roadmap](#roadmap)
+- [Data sources and acknowledgements](#data-sources-and-acknowledgements)
+
+</details>
 
 ## The problem
 
@@ -365,13 +403,13 @@ Stated plainly, because a reviewer will find them anyway.
 | 2 | **Satellite "loss" is not EUDR "deforestation".** Hansen reports that tree cover disappeared, not what the land became. | Logging followed by regrowth, fire and storm damage all register as loss, while EUDR only prohibits conversion of forest to agricultural use. ZKanopy is therefore a *screening* layer: it narrows what a human has to look at, it does not issue a verdict. |
 | 3 | **One plot = one ~100 m cell.** | Fits a smallholder plot; a larger or irregularly shaped holding is not represented. Polygons with the 128 m buffer are roadmap. |
 | 4 | **Five published regions** (Indonesia, Ghana, Côte d'Ivoire, Vietnam, Brazil). | Adding one is a YAML file plus one transaction, but a farmer outside the published areas still cannot use the app; the map shows the outlines so that is visible rather than surprising. Coverage is a data-pipeline cost, not an architectural limit — and labels have to be checked per landscape before a region is worth publishing. |
-| 10 | **The grid has no crop layer.** It measures tree-cover loss and greenness, nothing else. | `commodity` is a label in the region's config, not something detected from imagery. A "clean" cell may be water, a road or a village rather than a farm. Combined with row 1, that means someone could attest a cell that is a lake. Filtering by a land-cover product is roadmap. |
-| 11 | **Map imagery is third-party.** Tile requests reveal roughly which area is being browsed. | See *Privacy and security*. The exact plot is still never disclosed, and the search box does not call out at all. |
 | 5 | **The map is only as fresh as its source.** Hansen publishes annually, and v1.12 tops out at `lossyear` 24. | The effective detection window is 2021–2024; clearing from the last few months is not visible yet. Each release means republishing the root as a new grid version. |
 | 6 | **A single oracle publishes the root.** | One wallet could publish a false grid. Threshold attestors are roadmap. |
 | 7 | **The trusted setup has one contributor.** | Acceptable for a hackathon MVP, not for production. A multi-party ceremony must replace it. |
 | 8 | **The DDS export is a conceptual mapping**, not the official TRACES format, and nothing is filed with any EU system. | The exporter still files the real statement through the official channel. |
 | 9 | **Testnet only, not audited, contracts not source-verified on Basescan.** | Nothing here should be used for a real shipment. |
+| 10 | **The grid has no crop layer.** It measures tree-cover loss and greenness, nothing else. | `commodity` is a label in the region's config, not something detected from imagery. A "clean" cell may be water, a road or a village rather than a farm. Combined with row 1, that means someone could attest a cell that is a lake. Filtering by a land-cover product is roadmap. |
+| 11 | **Map imagery is third-party.** Tile requests reveal roughly which area is being browsed. | See [*Privacy and security*](#privacy-and-security). The exact plot is still never disclosed, and the search box does not call out at all. |
 
 ## Roadmap
 
@@ -391,3 +429,13 @@ Stated plainly, because a reviewer will find them anyway.
 
 The DDS JSON produced here is a conceptual mapping to the EUDR Due Diligence Statement fields, not the official TRACES
 format. All wallets and contracts are on a testnet; nothing here is audited.
+
+## License
+
+Released under the [MIT License](LICENSE). Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md),
+the [Code of Conduct](CODE_OF_CONDUCT.md) and the [security policy](SECURITY.md). If ZKanopy is useful in research,
+please cite it via [`CITATION.cff`](CITATION.cff).
+
+<div align="center">
+<sub>Built solo for the IEEE ClimateChain Global Hackathon 2026 · 🌳 for the farmers who keep the canopy standing</sub>
+</div>
